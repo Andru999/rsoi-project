@@ -8,7 +8,6 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: dips.ru
       http:
         paths:
           {{- range $key, $val := .Values.services }}
