@@ -8,10 +8,11 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-      http:
+    - http:
         paths:
           {{- range $key, $val := .Values.services }}
-          {{- if and (hasKey $val "publishUrl") (ne $val.publishUrl "") (ne $val.publishUrl "/") }}
+          {{- if and (hasKey $val "publishUrl") (ne $val.publishUrl "") }}
+          {{- if ne $val.publishUrl "/" }}
           {{- $path := trimSuffix "/" $val.publishUrl }}
           - path: {{ (printf "%s(/|$)(.*)" $path) | quote }}
             pathType: ImplementationSpecific
@@ -22,7 +23,8 @@ spec:
                   number: {{ $val.port }}
           {{- end }}
           {{- end }}
-          # Корневой путь для фронтенда – обязательно последним
+          {{- end }}
+          # Корневой путь для фронтенда – должен идти последним
           {{- range $key, $val := .Values.services }}
           {{- if and (hasKey $val "publishUrl") (eq $val.publishUrl "/") }}
           - path: /
