@@ -48,6 +48,7 @@ jobs:
       # 5. Загрузка всех образов в Minikube (ключевой шаг!)
       - name: Load images into Minikube
         run: |
+          minikube image load postgres:16-alpine
           minikube image load bonus-service:latest
           minikube image load flight-service:latest
           minikube image load ticket-service:latest
