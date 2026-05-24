@@ -1,0 +1,34 @@
+@tailwind components;
+
+@layer components {
+	.text-field {
+		@apply text-xl text-gray-600 flex items-center mr-2;
+	}
+	.text-subtitle {
+		@apply text-xl text-gray-600 font-bold flex items-center;
+	}
+	.text-header {
+		@apply text-2xl text-gray-600 flex flex-col items-center justify-center mb-5;
+	}
+
+	.text-error-page-container {
+		@apply absolute top-1/2 -translate-y-1/2 flex flex-col items-center justify-center right-0 mx-auto text-gray-600;
+		transition-property: left;
+		transition-duration: 0.2s;
+	}
+	.short-text-error-page-container {
+		@apply text-error-page-container;
+		left: 260px;
+	}
+	.long-text-error-page-container {
+		@apply text-error-page-container;
+		left: 65px;
+	}
+	.text-error-page-header {
+		@apply text-3xl flex justify-center min-w-max;
+	}
+	.text-error-page {
+		@apply text-2xl flex justify-center mt-5;
+		white-space: pre;
+	}
+}

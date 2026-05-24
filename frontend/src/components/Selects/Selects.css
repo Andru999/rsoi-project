@@ -1,0 +1,10 @@
+@tailwind components;
+
+@layer components {
+	.select-date {
+		@apply min-w-max flex justify-center;
+	}
+	.select-datetime {
+		@apply min-w-max flex justify-center;
+	}
+}

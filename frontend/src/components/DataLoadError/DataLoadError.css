@@ -1,0 +1,18 @@
+@tailwind components;
+
+@layer components {
+	.container-load-error {
+		@apply w-full h-full min-w-min min-h-min flex flex-col justify-center items-center;
+	}
+	.text-load-error {
+		@apply text-xl text-gray-600;
+	}
+
+	.container-update {
+		@apply flex flex-row mt-1 p-1 pr-2 rounded-full hover:bg-blue-600/10;
+	}
+	.text-update {
+		@apply text-base ml-1;
+		color: #197aca;
+	}
+}

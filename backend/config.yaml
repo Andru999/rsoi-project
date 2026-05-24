@@ -1,0 +1,71 @@
+databases:
+  bonus_db:
+    user: postgres
+    password: password
+    db: bonus_db
+    host: bonus_database
+    port: 5432
+  flight_db:
+    user: postgres
+    password: password
+    db: flight_db
+    host: flight_database
+    port: 5432
+  ticket_db:
+    user: postgres
+    password: password
+    db: ticket_db
+    host: ticket_database
+    port: 5432
+  auth_db:
+    user: postgres
+    password: password
+    db: auth_db
+    host: auth_database
+    port: 5432
+  statistics_db:
+    user: postgres
+    password: password
+    db: statistics_db
+    host: statistics_database
+    port: 5432
+
+services:
+  bonus:
+    host: "0.0.0.0"
+    port: 8050
+    log_level: "info"
+    reload: True
+  flight:
+    host: "0.0.0.0"
+    port: 8060
+    log_level: "info"
+    reload: True
+  ticket:
+    host: "0.0.0.0"
+    port: 8070
+    log_level: "info"
+    reload: True
+  gateway:
+    host: "0.0.0.0"
+    port: 8080
+    log_level: "info"
+    reload: True
+    bonus_host:  bonus_service
+    flight_host: flight_service
+    ticket_host: ticket_service
+    statistics_host: statistics_service
+    max_num_of_fails: 2
+    timeout: 10
+  auth:
+    host: "0.0.0.0"
+    network_host: auth_service
+    port: 8888
+    log_level: "info"
+    reload: True
+    kid: "1"
+  statistics:
+    host: "0.0.0.0"
+    port: 8090
+    log_level: "info"
+    reload: True

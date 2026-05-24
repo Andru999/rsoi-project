@@ -1,0 +1,70 @@
+@tailwind components;
+
+@layer components {
+	.table-container {
+		@apply absolute m-5;
+		top: 65px;
+		bottom: 0px;
+		right: 0px;
+		transition-property: left;
+		transition-duration: 0.2s;
+	}
+	.short-table-container {
+		@apply table-container;
+		left: 260px;
+	}
+	.long-table-container {
+		@apply table-container;
+		left: 65px;
+	}
+	.table {
+		@apply container mx-auto min-w-max block rounded-xl;
+		height: 100%;
+		width: 90%;
+		position: relative;
+		box-shadow: 0 0 40px #b5b8bc;
+	}
+
+	.title-row {
+		@apply container py-1 flex mx-auto min-w-full text-white border-b border-gray-400 rounded-b-none rounded-xl;
+		min-width: 60rem;
+		background-color: #197aca;
+	}
+	.title-row-without-buttons {
+		@apply title-row pt-2 pb-2.5;
+	}
+	.title-row-item {
+		@apply flex flex-row items-center pl-5 text-xl font-bold;
+	}
+
+	.rows-container {
+		@apply absolute w-full;
+		top: 3rem;
+		bottom: 3.4rem;
+		overflow-x: auto;
+	}
+	.rows {
+		@apply block w-full;
+		overflow-y: scroll;
+  	scroll-behavior: smooth;
+		max-height: 100%;
+	}
+	.row {
+		@apply container py-1 flex mx-auto min-w-full text-gray-600 border-b border-gray-400;
+		min-width: 60rem;
+	}
+	.row:hover {
+		background-color: #cbd9e6;
+	}
+	.row-item {
+		@apply flex flex-row items-center py-1 pl-5 text-xl;
+	}
+
+	.actions {
+		@apply flex flex-row justify-end basis-12 mr-3;
+	}
+	.pagination {
+		@apply absolute flex w-full bg-gray-200 rounded-t-none rounded-xl;
+		bottom: 0px;
+	}
+}

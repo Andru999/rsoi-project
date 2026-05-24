@@ -1,0 +1,57 @@
+@tailwind components;
+
+@layer components {
+	.buttons {
+		@apply flex flex-row h-11 mt-5;
+	}
+
+	.central-buttons {
+		@apply buttons justify-center;
+	}
+	.left-buttons {
+		@apply buttons justify-start;
+	}
+	.right-buttons {
+		@apply buttons justify-end;
+	}
+
+	.user-info-body {
+		@apply container flex-grow mx-auto px-5 py-5 rounded-xl border border-gray-500;
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		gap: 20px;
+	}
+
+	.detailed-info-container {
+		@apply container flex flex-col mx-auto px-6 py-6 rounded-xl bg-white min-w-max;
+		height: 100%;
+		width: 90%;
+		position: relative;
+		box-shadow: 0 0 40px #b5b8bc;
+	}
+	.detailed-info-body {
+		@apply container flex-grow mx-auto px-5 py-3 rounded-xl border border-gray-500;
+		position: relative;
+		overflow-y: scroll;
+		scroll-behavior: smooth;
+	}
+
+	.balance-history-info {
+		@apply px-5 py-3 rounded-xl w-full border border-gray-300 items-start hover:border-gray-500;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 10px;
+	}
+
+	.text-bonuses {
+		@apply rounded-full flex flex-row items-center border text-xl w-52 justify-center;
+	}
+	.accrued-bonuses {
+		@apply text-bonuses border-green-700 text-green-700;
+		background-color: rgba(20, 83, 45, 0.106);
+	}
+	.reducted-bonuses {
+		@apply text-bonuses border-yellow-700 text-yellow-700;
+		background-color: rgba(133, 113, 14, 0.15);
+	}
+}

@@ -1,0 +1,98 @@
+# Default values for my-app.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+services:
+  bonus-service:
+    name: bonus-service
+    container: bonus-service:latest
+    replicaCount: 1
+    env:
+      DB_DSN: "host=bonusdb user=postgres password=password dbname=bonus_db port=5432"
+    publishUrl: /bonus-service-direct
+    port: 8050
+    targetPort: 8050
+
+  flight-service:
+    name: flight-service
+    container: flight-service:latest
+    replicaCount: 1
+    env:
+      DB_DSN: "host=flightdb user=postgres password=password dbname=flight_db port=5432"
+    publishUrl: /flight-service-direct
+    port: 8060
+    targetPort: 8060
+
+  ticket-service:
+    name: ticket-service
+    container: ticket-service:latest
+    replicaCount: 1
+    env:
+      DB_DSN: "host=ticketdb user=postgres password=password dbname=ticket_db port=5432"
+    publishUrl: /ticket-service-direct
+    port: 8070
+    targetPort: 8070
+
+  auth-service:
+    name: auth-service
+    container: auth-service:latest
+    replicaCount: 1
+    env:
+      DB_DSN: "host=authdb user=postgres password=password dbname=auth_db port=5432"
+    publishUrl: /auth
+    port: 8888
+    targetPort: 8888
+
+  statistics-service:
+    name: statistics-service
+    container: statistics-service:latest
+    replicaCount: 1
+    env:
+      KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+      DB_DSN: "host=statisticsdb user=postgres password=password dbname=statistics_db port=5432"
+    publishUrl: /statistics
+    port: 8090
+    targetPort: 8090
+
+  consumer-service:
+    name: consumer-service
+    container: consumer-service:latest
+    replicaCount: 1
+    env:
+      KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+      KAFKA_GROUP_ID: "my-group"
+      DB_DSN: "host=statisticsdb user=postgres password=password dbname=statistics_db port=5432"
+    publishUrl: ""
+    port: 0
+    targetPort: 0
+
+  gateway-service:
+    name: gateway-service
+    container: gateway-service:latest
+    replicaCount: 1
+    env:
+      BONUS_SERVICE_URL: "http://bonus-service:8050/api/v1/"
+      FLIGHT_SERVICE_URL: "http://flight-service:8060/api/v1/"
+      TICKET_SERVICE_URL: "http://ticket-service:8070/api/v1/"
+      AUTH_SERVICE_URL: "http://auth-service:8888/"
+      STATISTICS_SERVICE_URL: "http://statistics-service:8090/"
+    publishUrl: /api
+    port: 8080
+    targetPort: 8080
+
+  dips-client:
+    name: dips-client
+    container: dips-client:latest
+    replicaCount: 1
+    env:
+      AUTH_SERVICE_URL: "http://auth-service:8888"
+      STATISTICS_SERVICE_URL: "http://statistics-service:8090"
+      GATEWAY_SERVICE_URL: "http://gateway-service:8080"
+      TICKET_SERVICE_URL: "http://ticket-service:8070"
+      FLIGHT_SERVICE_URL: "http://flight-service:8060"
+      BONUS_SERVICE_URL: "http://bonus-service:8050"
+    publishUrl: /
+    port: 80
+    targetPort: 80

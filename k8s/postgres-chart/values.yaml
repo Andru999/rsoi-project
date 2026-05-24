@@ -1,0 +1,33 @@
+version: 16
+port: 5432
+
+default_database:
+  user: postgres
+  password: password
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+replicaCount: 1
+
+services:
+  bonusdb:
+    name: bonusdb
+    container: bonus-db:latest
+    replicaCount: 1
+    hostPort: 5432
+  flightdb:
+    name: flightdb
+    container: flight-db:latest
+    replicaCount: 1
+    hostPort: 5433
+  ticketdb:
+    name: ticketdb
+    container: ticket-db:latest
+    replicaCount: 1
+    hostPort: 5434
