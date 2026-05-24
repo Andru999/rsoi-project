@@ -1,44 +1,7 @@
-{{- $apiServices := list }}
-{{- $frontendService := "" }}
-{{- range $key, $val := .Values.services }}
-{{- if and (hasKey $val "publishUrl") (ne $val.publishUrl "") }}
-{{- if eq $val.publishUrl "/" }}
-{{- $frontendService = $val }}
-{{- else }}
-{{- $apiServices = append $apiServices $val }}
-{{- end }}
-{{- end }}
-{{- end }}
-
-{{- if $frontendService }}
----
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: frontend-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/use-regex: "true"
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: dips.ru
-      http:
-        paths:
-          - path: /(.*)
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ $frontendService.name }}
-                port:
-                  number: {{ $frontendService.port }}
-{{- end }}
-
-{{- if $apiServices }}
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: api-ingress
+  name: controller
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
@@ -48,14 +11,27 @@ spec:
     - host: dips.ru
       http:
         paths:
-          {{- range $apiServices }}
-          {{- $path := trimSuffix "/" .publishUrl }}
+          {{- range $key, $val := .Values.services }}
+          {{- if and (hasKey $val "publishUrl") (ne $val.publishUrl "") (ne $val.publishUrl "/") }}
+          {{- $path := trimSuffix "/" $val.publishUrl }}
           - path: {{ (printf "%s(/|$)(.*)" $path) | quote }}
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ $val.name }}
+                port:
+                  number: {{ $val.port }}
+          {{- end }}
+          {{- end }}
+          # Корневой путь для фронтенда – обязательно последним
+          {{- range $key, $val := .Values.services }}
+          {{- if and (hasKey $val "publishUrl") (eq $val.publishUrl "/") }}
+          - path: /
             pathType: Prefix
             backend:
               service:
-                name: {{ .name }}
+                name: {{ $val.name }}
                 port:
-                  number: {{ .port }}
+                  number: {{ $val.port }}
           {{- end }}
-{{- end }}
+          {{- end }}
