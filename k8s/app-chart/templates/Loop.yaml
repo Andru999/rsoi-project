@@ -1,7 +1,8 @@
-{{- range  $key, $val := .Values.services}}
-
-{{- template "service.template" (dict "ctx" $ "service" $val)}}
+{{- range $key, $val := .Values.services }}
+{{- if gt (int $val.port) 0 }}
+{{- template "service.template" (dict "ctx" $ "service" $val) }}
 ---
-{{- template "deployment.template" (dict "ctx" $ "service" $val "services" $.Values.services)}}
+{{- end }}
+{{- template "deployment.template" (dict "ctx" $ "service" $val "services" $.Values.services) }}
 ---
 {{- end }}

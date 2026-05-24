@@ -20,7 +20,7 @@ spec:
         - name: {{ .ctx.Release.Name }}-{{.service.name}}
           image: {{.service.container}}
           imagePullPolicy: {{ .service.imagePullPolicy | default "IfNotPresent" }}
-          {{- if and (hasKey .service "port") (gt .service.port 0) }}
+          {{- if and (hasKey .service "port") (gt (int .service.port) 0) }}
           ports:
             - containerPort: {{ .service.targetPort | default .service.port }}
               name: http
