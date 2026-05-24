@@ -11,19 +11,22 @@ spec:
     - http:
         paths:
           {{- range $key, $val := .Values.services }}
-          {{- if (hasKey $val "publishUrl") }}
-          {{- $path := trimSuffix "/" $val.publishUrl }}
-          {{- if eq $path "/" }}
-          - path: /()(.*)
-            pathType: ImplementationSpecific
+          {{- if and (hasKey $val "publishUrl") (ne $val.publishUrl "") }}
+          {{- $pub := $val.publishUrl }}
+          {{- if eq $pub "/" }}
+          # Корневой путь для SPA – захватываем всё
+          - path: /(.*)
+            pathType: Prefix
             backend:
               service:
                 name: {{ $val.name }}
                 port:
                   number: {{ $val.port }}
           {{- else }}
+          {{- $path := trimSuffix "/" $pub }}
+          # Префикс + необязательный "/" + остаток пути
           - path: {{ (printf "%s(/|$)(.*)" $path) | quote }}
-            pathType: ImplementationSpecific
+            pathType: Prefix
             backend:
               service:
                 name: {{ $val.name }}
