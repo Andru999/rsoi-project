@@ -1,37 +1,61 @@
+{{- $apiServices := list }}
+{{- $frontendService := "" }}
+{{- range $key, $val := .Values.services }}
+{{- if and (hasKey $val "publishUrl") (ne $val.publishUrl "") }}
+{{- if eq $val.publishUrl "/" }}
+{{- $frontendService = $val }}
+{{- else }}
+{{- $apiServices = append $apiServices $val }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- if $frontendService }}
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: controller
+  name: frontend-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: dips.ru
+      http:
+        paths:
+          - path: /(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $frontendService.name }}
+                port:
+                  number: {{ $frontendService.port }}
+{{- end }}
+
+{{- if $apiServices }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-ingress
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   ingressClassName: nginx
   rules:
-    - http:
+    - host: dips.ru
+      http:
         paths:
-          {{- range $key, $val := .Values.services }}
-          {{- if and (hasKey $val "publishUrl") (ne $val.publishUrl "") }}
-          {{- $pub := $val.publishUrl }}
-          {{- if eq $pub "/" }}
-          # Корневой путь для SPA – захватываем всё
-          - path: /(.*)
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ $val.name }}
-                port:
-                  number: {{ $val.port }}
-          {{- else }}
-          {{- $path := trimSuffix "/" $pub }}
-          # Префикс + необязательный "/" + остаток пути
+          {{- range $apiServices }}
+          {{- $path := trimSuffix "/" .publishUrl }}
           - path: {{ (printf "%s(/|$)(.*)" $path) | quote }}
             pathType: Prefix
             backend:
               service:
-                name: {{ $val.name }}
+                name: {{ .name }}
                 port:
-                  number: {{ $val.port }}
+                  number: {{ .port }}
           {{- end }}
-          {{- end }}
-          {{- end }}
+{{- end }}
