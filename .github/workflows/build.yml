@@ -54,7 +54,7 @@ jobs:
           minikube image load auth-service:latest
           minikube image load statistics-service:latest
           minikube image load gateway-service:latest
-          minikube image load consumer-service:latest   # если нужен, или уберите
+          minikube image load consumer-service:latest
           minikube image load dips-client:latest
           minikube image load confluentinc/cp-zookeeper:latest
           minikube image load confluentinc/cp-kafka:7.3.2
