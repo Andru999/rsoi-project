@@ -11,64 +11,83 @@ on:
 jobs:
   deploy:
     name: Full Deploy
-    runs-on: self-hosted             # ваш локальный раннер
+    runs-on: self-hosted
     steps:
       # 1. Получаем код
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 2. Переключаем Docker CLI на демон Minikube
-      - name: Switch to Minikube Docker daemon
+      # 2. Проверяем и при необходимости запускаем Minikube
+      - name: Start Minikube if not running
         run: |
-          & minikube -p minikube docker-env --shell powershell | Invoke-Expression
+          $status = minikube status --format "{{.Host}}" 2>$null
+          if ($status -ne "Running") {
+            Write-Host "Minikube is not running. Starting..."
+            minikube start --driver=docker
+            minikube addons enable ingress
+          } else {
+            Write-Host "Minikube is already running."
+          }
         shell: powershell
 
-      # 3. Сборка образов бэкенда
+      # 3. Сборка образов backend в обычном Docker
       - name: Build backend images
         run: |
           cd backend
           docker compose build
         shell: powershell
 
-      # 4. Сборка образа фронтенда
+      # 4. Сборка образа frontend
       - name: Build frontend image
         run: |
           cd frontend
           docker compose build
         shell: powershell
 
-#      # 5. Установка / обновление Kafka (Bitnami-чарт).
-#      #    Если Kafka уже стоит – можно закомментировать этот шаг.
-#      - name: Deploy Kafka
-#        run: |
-#          helm repo add bitnami https://charts.bitnami.com/bitnami --force-update
-#          helm upgrade --install kafka bitnami/kafka `
-#            --set zookeeper.enabled=true `
-#            --set listeners.client.protocol=PLAINTEXT `
-#            --set advertisedListeners.client.protocol=PLAINTEXT `
-#            --wait --timeout 10m
-#        shell: powershell
+      # 5. Загрузка всех образов в Minikube (ключевой шаг!)
+      - name: Load images into Minikube
+        run: |
+          minikube image load bonus-service:latest
+          minikube image load flight-service:latest
+          minikube image load ticket-service:latest
+          minikube image load auth-service:latest
+          minikube image load statistics-service:latest
+          minikube image load gateway-service:latest
+          minikube image load consumer-service:latest   # если нужен, или уберите
+          minikube image load dips-client:latest
+          minikube image load confluentinc/cp-zookeeper:latest
+          minikube image load confluentinc/cp-kafka:7.3.2
+        shell: powershell
 
-      # 6. Создание ConfigMap с SQL-скриптами инициализации БД
-      #    Имена ConfigMap должны совпадать с теми, что ожидает postgres-chart.
+      # 6. Создание ConfigMap со скриптами инициализации БД
       - name: Create init-sql ConfigMaps
         run: |
           kubectl create configmap bonusdb-init-sql --from-file=backend/bonus_service/sql/init_db.sql --dry-run=client -o yaml | kubectl apply -f -
           kubectl create configmap flightdb-init-sql --from-file=backend/flight_service/sql/init_db.sql --dry-run=client -o yaml | kubectl apply -f -
           kubectl create configmap ticketdb-init-sql --from-file=backend/ticket_service/sql/init_db.sql --dry-run=client -o yaml | kubectl apply -f -
           kubectl create configmap authdb-init-sql --from-file=backend/auth_service/sql/init_db.sql --dry-run=client -o yaml | kubectl apply -f -
+#          kubectl create configmap statisticsdb-init-sql --from-file=backend/statistics_service/sql/init_db.sql --dry-run=client -o yaml | kubectl apply -f -
         shell: powershell
 
-      # 7. Деплой баз данных через postgres-chart
+      # 7. Удаляем старый релиз Kafka, если он остался (чтобы не было конфликта имён)
+      - name: Remove old Kafka release if present
+        run: |
+          if (helm list -q | Select-String -Pattern '^kafka$') {
+            Write-Host "Removing old Kafka release..."
+            helm uninstall kafka
+          }
+        shell: powershell
+
+      # 8. Деплой баз данных через postgres-chart
       - name: Deploy PostgreSQL databases
         run: |
           helm upgrade --install db ./k8s/postgres-chart `
             -f ./k8s/postgres-chart/values.yaml `
-            --wait --timeout 5m
+            --wait --timeout 10m
         shell: powershell
 
-      # 8. Деплой микросервисов и фронтенда через app-chart
+      # 9. Деплой микросервисов и фронтенда через app-chart
       - name: Deploy application services
         run: |
           helm upgrade --install my-app ./k8s/app-chart `
@@ -76,26 +95,26 @@ jobs:
             --wait --timeout 15m
         shell: powershell
 
-      # 9. Запуск minikube tunnel в фоне, чтобы Ingress отвечал на localhost
+      # 10. Запуск minikube tunnel в фоне, чтобы Ingress отвечал на localhost
       - name: Start minikube tunnel
         run: |
           Start-Process -NoNewWindow powershell -ArgumentList "minikube tunnel"
           Start-Sleep -Seconds 15
         shell: powershell
 
-      # 10. Ожидание, пока все поды станут Ready
+      # 11. Ожидание, пока все поды станут Ready
       - name: Wait for all pods
         run: kubectl wait --for=condition=ready pod --all --timeout=300s
         shell: powershell
 
-#      # 11. Прогон API-тестов (предполагается, что скрипт лежит в ./scripts)
-#      - name: Run API tests
-#        timeout-minutes: 5
-#        run: bash ./scripts/test-script.sh
-#        shell: bash
-#        env:
-#          VARIANT: v1
-#          BASE_URL: http://localhost
-#          # Если тестовый скрипт требует конкретного имени деплоймента:
-#          DEPLOYMENT_NAME: my-app-bonus-service
-#          NAMESPACE: default
+      # 12. Диагностика при сбое
+      - name: Debug on failure
+        if: failure()
+        run: |
+          Write-Host "=== Pods ==="
+          kubectl get pods
+          Write-Host "=== Describe pods ==="
+          kubectl describe pods
+          Write-Host "=== Logs (last 50 lines) ==="
+          kubectl logs --all-containers=true --tail=50 --selector app.kubernetes.io/part-of=simple-backend
+        shell: powershell

@@ -19,11 +19,16 @@ spec:
       containers:
         - name: {{ .ctx.Release.Name }}-{{.service.name}}
           image: {{.service.container}}
-          imagePullPolicy: Always
+          imagePullPolicy: {{ .service.imagePullPolicy | default "IfNotPresent" }}
+          {{- if and (hasKey .service "port") (gt .service.port 0) }}
+          ports:
+            - containerPort: {{ .service.targetPort | default .service.port }}
+              name: http
+          {{- end }}
           env:
             {{- range $k, $v := .service.env}}
             - name: {{$k | quote}}
-              value: {{$v | quote}}  {{/* Убрана автоматическая замена */}}
+              value: {{$v | quote}}
             {{- end }}
       restartPolicy: Always
 {{- end}}
