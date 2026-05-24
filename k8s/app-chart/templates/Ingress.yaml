@@ -1,7 +1,64 @@
+{{- $frontendService := "" }}
+{{- $gatewayService := "" }}
+{{- $apiServices := list }}
+{{- range $key, $val := .Values.services }}
+{{- if and (hasKey $val "publishUrl") (ne $val.publishUrl "") }}
+{{- if eq $val.publishUrl "/" }}
+{{- $frontendService = $val }}
+{{- else if eq $val.publishUrl "/api" }}
+{{- $gatewayService = $val }}
+{{- else }}
+{{- $apiServices = append $apiServices $val }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- if $frontendService }}
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: controller
+  name: frontend-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $frontendService.name }}
+                port:
+                  number: {{ $frontendService.port }}
+{{- end }}
+
+{{- if $gatewayService }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gateway-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $gatewayService.name }}
+                port:
+                  number: {{ $gatewayService.port }}
+{{- end }}
+
+{{- if $apiServices }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-ingress
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
@@ -10,29 +67,14 @@ spec:
   rules:
     - http:
         paths:
-          {{- range $key, $val := .Values.services }}
-          {{- if and (hasKey $val "publishUrl") (ne $val.publishUrl "") }}
-          {{- if ne $val.publishUrl "/" }}
-          {{- $path := trimSuffix "/" $val.publishUrl }}
+          {{- range $apiServices }}
+          {{- $path := trimSuffix "/" .publishUrl }}
           - path: {{ (printf "%s(/|$)(.*)" $path) | quote }}
             pathType: ImplementationSpecific
             backend:
               service:
-                name: {{ $val.name }}
+                name: {{ .name }}
                 port:
-                  number: {{ $val.port }}
+                  number: {{ .port }}
           {{- end }}
-          {{- end }}
-          {{- end }}
-          # Корневой путь для фронтенда – должен идти последним
-          {{- range $key, $val := .Values.services }}
-          {{- if and (hasKey $val "publishUrl") (eq $val.publishUrl "/") }}
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ $val.name }}
-                port:
-                  number: {{ $val.port }}
-          {{- end }}
-          {{- end }}
+{{- end }}
