@@ -1,28 +1,34 @@
 export const config = {
   server: {
     auth: {
-      host: "localhost",
-      port: 8888,
+      host: "",
+      port: "",
+      basePath: "/auth"
     },
     statistics: {
-      host: "localhost",
-      port: 8090,
+      host: "",
+      port: "",
+      basePath: "/statistics"
     },
     gateway: {
-      host: "localhost",
-      port: 8080,
+      host: "",
+      port: "",
+      basePath: "/api"
     },
     ticket: {
-      host: "localhost",
-      port: 8070,
+      host: "",
+      port: "",
+      basePath: "/ticket-service-direct"
     },
     flight: {
-      host: "localhost",
-      port: 8060,
+      host: "",
+      port: "",
+      basePath: "/flight-service-direct"
     },
     bonus: {
-      host: "localhost",
-      port: 8050,
+      host: "",
+      port: "",
+      basePath: "/bonus-service-direct"
     },
   },
 };

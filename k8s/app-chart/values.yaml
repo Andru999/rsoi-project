@@ -70,6 +70,7 @@ services:
     targetPort: 0
 
   gateway-service:
+    type: NodePort
     name: gateway-service
     container: gateway-service:latest
     replicaCount: 1
@@ -84,6 +85,7 @@ services:
     targetPort: 8080
 
   dips-client:
+    type: NodePort
     name: dips-client
     container: dips-client:latest
     replicaCount: 1
