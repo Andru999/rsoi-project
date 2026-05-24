@@ -96,3 +96,30 @@ services:
     publishUrl: /
     port: 80
     targetPort: 80
+
+  zookeeper:
+    name: zookeeper
+    container: confluentinc/cp-zookeeper:latest
+    replicaCount: 1
+    env:
+      ZOOKEEPER_CLIENT_PORT: "2181"
+      ZOOKEEPER_TICK_TIME: "2000"
+    publishUrl: ""
+    port: 2181
+    targetPort: 2181
+
+  kafka:
+    name: kafka
+    container: confluentinc/cp-kafka:7.3.2
+    replicaCount: 1
+    env:
+      KAFKA_BROKER_ID: "1"
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_LISTENERS: "INTERNAL://:29092,EXTERNAL://:9092"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:29092,EXTERNAL://localhost:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+    publishUrl: ""
+    port: 9092
+    targetPort: 9092

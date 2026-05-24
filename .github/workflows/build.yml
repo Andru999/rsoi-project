@@ -38,17 +38,17 @@ jobs:
           docker compose build
         shell: powershell
 
-      # 5. Установка / обновление Kafka (Bitnami-чарт).
-      #    Если Kafka уже стоит – можно закомментировать этот шаг.
-      - name: Deploy Kafka
-        run: |
-          helm repo add bitnami https://charts.bitnami.com/bitnami --force-update
-          helm upgrade --install kafka bitnami/kafka `
-            --set zookeeper.enabled=true `
-            --set listeners.client.protocol=PLAINTEXT `
-            --set advertisedListeners.client.protocol=PLAINTEXT `
-            --wait --timeout 10m
-        shell: powershell
+#      # 5. Установка / обновление Kafka (Bitnami-чарт).
+#      #    Если Kafka уже стоит – можно закомментировать этот шаг.
+#      - name: Deploy Kafka
+#        run: |
+#          helm repo add bitnami https://charts.bitnami.com/bitnami --force-update
+#          helm upgrade --install kafka bitnami/kafka `
+#            --set zookeeper.enabled=true `
+#            --set listeners.client.protocol=PLAINTEXT `
+#            --set advertisedListeners.client.protocol=PLAINTEXT `
+#            --wait --timeout 10m
+#        shell: powershell
 
       # 6. Создание ConfigMap с SQL-скриптами инициализации БД
       #    Имена ConfigMap должны совпадать с теми, что ожидает postgres-chart.
