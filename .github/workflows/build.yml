@@ -58,7 +58,6 @@ jobs:
           kubectl create configmap flightdb-init-sql --from-file=backend/flight_service/sql/init_db.sql --dry-run=client -o yaml | kubectl apply -f -
           kubectl create configmap ticketdb-init-sql --from-file=backend/ticket_service/sql/init_db.sql --dry-run=client -o yaml | kubectl apply -f -
           kubectl create configmap authdb-init-sql --from-file=backend/auth_service/sql/init_db.sql --dry-run=client -o yaml | kubectl apply -f -
-          kubectl create configmap statisticsdb-init-sql --from-file=backend/statistics_service/sql/init_db.sql --dry-run=client -o yaml | kubectl apply -f -
         shell: powershell
 
       # 7. Деплой баз данных через postgres-chart
