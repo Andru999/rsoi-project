@@ -31,34 +31,34 @@ jobs:
           }
         shell: powershell
 
-      # 3. Сборка образов backend в обычном Docker
-      - name: Build backend images
+      # 2. Переключаем Docker на демон Minikube (надёжная версия)
+      - name: Switch to Minikube Docker daemon
+        run: |
+          $envOutput = minikube docker-env --shell powershell
+          $envLines = $envOutput -split "`r?`n" | Where-Object { $_ -match '^\$Env:' }
+          if ($envLines) {
+              $envLines -join "`n" | Invoke-Expression
+              Write-Host "Switched to Minikube Docker daemon"
+              # Проверяем, что теперь работаем с Minikube
+              docker info --format '{{ .Name }}' | Select-String "minikube"
+          } else {
+              Write-Error "Failed to switch Docker daemon. Output: $envOutput"
+              exit 1
+          }
+        shell: powershell
+
+      # 3. Сборка образов backend – теперь сразу в Minikube
+      - name: Build backend images (inside Minikube)
         run: |
           cd backend
           docker compose build
         shell: powershell
 
-      # 4. Сборка образа frontend
-      - name: Build frontend image
+      # 4. Сборка frontend – также в Minikube
+      - name: Build frontend image (inside Minikube)
         run: |
           cd frontend
           docker compose build
-        shell: powershell
-
-      # 5. Загрузка всех образов в Minikube (ключевой шаг!)
-      - name: Load images into Minikube
-        run: |
-          minikube image load postgres:16-alpine
-          minikube image load bonus-service:latest
-          minikube image load flight-service:latest
-          minikube image load ticket-service:latest
-          minikube image load auth-service:latest
-          minikube image load statistics-service:latest
-          minikube image load gateway-service:latest
-          minikube image load consumer-service:latest
-          minikube image load dips-client:latest
-          minikube image load confluentinc/cp-zookeeper:latest
-          minikube image load confluentinc/cp-kafka:7.3.2
         shell: powershell
 
       # 6. Создание ConfigMap со скриптами инициализации БД
