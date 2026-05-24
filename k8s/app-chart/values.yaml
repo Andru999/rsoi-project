@@ -56,17 +56,17 @@ services:
     port: 8090
     targetPort: 8090
 
-  consumer-service:
-    name: consumer-service
-    container: consumer-service:latest
-    replicaCount: 1
-    env:
-      KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
-      KAFKA_GROUP_ID: "my-group"
-      DB_DSN: "host=statisticsdb user=postgres password=password dbname=statistics_db port=5432"
-    publishUrl: ""
-    port: 0
-    targetPort: 0
+#  consumer-service:
+#    name: consumer-service
+#    container: consumer-service:latest
+#    replicaCount: 1
+#    env:
+#      KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+#      KAFKA_GROUP_ID: "my-group"
+#      DB_DSN: "host=statisticsdb user=postgres password=password dbname=statistics_db port=5432"
+#    publishUrl: ""
+#    port: 0
+#    targetPort: 0
 
   gateway-service:
     name: gateway-service
