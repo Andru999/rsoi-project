@@ -73,7 +73,7 @@ jobs:
         run: |
           helm upgrade --install my-app ./k8s/app-chart `
             -f ./k8s/app-chart/values.yaml `
-            --wait --timeout 5m
+            --wait --timeout 15m
         shell: powershell
 
       # 9. Запуск minikube tunnel в фоне, чтобы Ingress отвечал на localhost
