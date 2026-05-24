@@ -1,7 +1,67 @@
+{{- $frontendService := "" }}
+{{- $gatewayService := "" }}
+{{- $apiServices := list }}
+{{- range $key, $val := .Values.services }}
+{{- if and (hasKey $val "publishUrl") (ne $val.publishUrl "") }}
+{{- if eq $val.publishUrl "/" }}
+{{- $frontendService = $val }}
+{{- else if eq $val.publishUrl "/api" }}
+{{- $gatewayService = $val }}
+{{- else }}
+{{- $apiServices = append $apiServices $val }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+# 1. Gateway Ingress (без rewrite)
+{{- if $gatewayService }}
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: controller
+  name: gateway-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $gatewayService.name }}
+                port:
+                  number: {{ $gatewayService.port }}
+{{- end }}
+
+# 2. Фронтенд Ingress (без rewrite)
+{{- if $frontendService }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frontend-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $frontendService.name }}
+                port:
+                  number: {{ $frontendService.port }}
+{{- end }}
+
+# 3. API-сервисы с rewrite (все, кроме /api и /)
+{{- if $apiServices }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-ingress
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
@@ -10,41 +70,14 @@ spec:
   rules:
     - http:
         paths:
-          # 1. API-пути, где нужен rewrite (не /api и не /)
-          {{- range $key, $val := .Values.services }}
-          {{- $pub := $val.publishUrl }}
-          {{- if and (ne $pub "/") (ne $pub "/api") (ne $pub "") }}
-          {{- $path := trimSuffix "/" $pub }}
+          {{- range $apiServices }}
+          {{- $path := trimSuffix "/" .publishUrl }}
           - path: {{ (printf "%s(/|$)(.*)" $path) | quote }}
             pathType: ImplementationSpecific
             backend:
               service:
-                name: {{ $val.name }}
+                name: {{ .name }}
                 port:
-                  number: {{ $val.port }}
+                  number: {{ .port }}
           {{- end }}
-          {{- end }}
-          # 2. Путь /api без rewrite (gateway)
-          {{- range $key, $val := .Values.services }}
-          {{- if eq $val.publishUrl "/api" }}
-          - path: /api
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ $val.name }}
-                port:
-                  number: {{ $val.port }}
-          {{- end }}
-          {{- end }}
-          # 3. Корневой путь без rewrite (SPA)
-          {{- range $key, $val := .Values.services }}
-          {{- if eq $val.publishUrl "/" }}
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ $val.name }}
-                port:
-                  number: {{ $val.port }}
-          {{- end }}
-          {{- end }}
+{{- end }}
