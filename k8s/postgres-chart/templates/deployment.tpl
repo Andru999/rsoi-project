@@ -35,7 +35,7 @@ spec:
             - name: POSTGRES_PASSWORD
               value: {{ .ctx.Values.default_database.password }}
             - name: POSTGRES_DB
-              value: {{ .service.name }}
+              value: {{ .service.db_name | default .service.name }}
           resources:
             requests:
               memory: "{{ .ctx.Values.resources.requests.memory }}"
