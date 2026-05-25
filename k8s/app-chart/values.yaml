@@ -89,13 +89,7 @@ services:
     name: dips-client
     container: dips-client:latest
     replicaCount: 1
-    env:
-      AUTH_SERVICE_URL: "http://auth-service:8888"
-      STATISTICS_SERVICE_URL: "http://statistics-service:8090"
-      GATEWAY_SERVICE_URL: "http://gateway-service:8080"
-      TICKET_SERVICE_URL: "http://ticket-service:8070"
-      FLIGHT_SERVICE_URL: "http://flight-service:8060"
-      BONUS_SERVICE_URL: "http://bonus-service:8050"
+    env: {}
     publishUrl: /
     port: 80
     targetPort: 80
