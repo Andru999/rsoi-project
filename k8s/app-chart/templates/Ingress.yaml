@@ -13,12 +13,17 @@
 {{- end }}
 {{- end }}
 
+<<<<<<< HEAD
 # 1. Gateway Ingress (без rewrite)
 {{- if $gatewayService }}
+=======
+{{- if $frontendService }}
+>>>>>>> parent of 7e44108 (fix k8s)
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+<<<<<<< HEAD
   name: gateway-ingress
 spec:
   ingressClassName: nginx
@@ -40,6 +45,8 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+=======
+>>>>>>> parent of 7e44108 (fix k8s)
   name: frontend-ingress
 spec:
   ingressClassName: nginx
@@ -55,7 +62,30 @@ spec:
                   number: {{ $frontendService.port }}
 {{- end }}
 
+<<<<<<< HEAD
 # 3. API-сервисы с rewrite (все, кроме /api и /)
+=======
+{{- if $gatewayService }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gateway-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $gatewayService.name }}
+                port:
+                  number: {{ $gatewayService.port }}
+{{- end }}
+
+>>>>>>> parent of 7e44108 (fix k8s)
 {{- if $apiServices }}
 ---
 apiVersion: networking.k8s.io/v1
