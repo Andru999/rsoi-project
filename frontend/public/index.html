@@ -2,23 +2,9 @@
 <html lang="en">
   <head>
     <script>
-      // Отключаем WebSocket, если он не нужен (HMR и т.п.)
-      (function() {
-        var OrigWebSocket = window.WebSocket;
-        window.WebSocket = function(url, protocols) {
-          console.warn('WebSocket disabled – connection to', url, 'blocked');
-          // Возвращаем заглушку с необходимыми методами
-          return {
-            close: function() {},
-            send: function() {},
-            addEventListener: function() {},
-            removeEventListener: function() {},
-            readyState: 3,
-            url: url
-          };
-        };
-        window.WebSocket.prototype = OrigWebSocket ? OrigWebSocket.prototype : {};
-      })();
+      window.WebSocket = function() {
+        console.warn('WebSocket disabled');
+      };
     </script>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
