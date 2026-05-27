@@ -19,12 +19,12 @@ export const $apiUser = axios.create({
 
 // Gateway (основное API)
 export const $apiGateway = axios.create({
-  baseURL: `${config.server.gateway.basePath}`,       // → /api
+  baseURL: `${config.server.gateway.basePath}/api/v1`,       // → /api
 });
 
 // Statistics (сервис статистики)
 export const $apiStatistics = axios.create({
-  baseURL: `${config.server.statistics.basePath}`,    // → /statistics
+  baseURL: `${config.server.statistics.basePath}/api/v1`,    // → /statistics
 });
 
 // ============================================================
