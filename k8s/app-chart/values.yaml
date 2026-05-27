@@ -80,6 +80,7 @@ services:
       TICKET_SERVICE_URL: "http://ticket-service:8070/api/v1/"
       AUTH_SERVICE_URL: "http://auth-service:8888/"
       STATISTICS_SERVICE_URL: "http://statistics-service:8090/"
+      AUTH_JWKS_URL: "http://auth-service:8888/.well-known/jwks.json"
     publishUrl: /api
     port: 8080
     targetPort: 8080
