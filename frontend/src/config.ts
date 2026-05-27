@@ -13,7 +13,7 @@ export const config = {
     gateway: {
       host: "",
       port: "",
-      basePath: "/api"
+      basePath: ""
     },
     ticket: {
       host: "",
