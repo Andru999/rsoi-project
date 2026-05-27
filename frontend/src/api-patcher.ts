@@ -9,7 +9,7 @@ axios.create = function (config?: any) {
       .replace(/http:\/\/localhost:8060/, '/flight-service-direct')
       .replace(/http:\/\/localhost:8070/, '/ticket-service-direct')
       .replace(/http:\/\/localhost:8090/, '/statistics')
-      .replace(/http:\/\/localhost:8080/, '/api');
+      .replace(/http:\/\/localhost:8080/, '');
   }
   return originalCreate.call(this, config);
 };
