@@ -3,12 +3,12 @@ export const config = {
     auth: {
       host: "",
       port: "",
-      basePath: ""
+      basePath: "/auth"
     },
     statistics: {
       host: "",
       port: "",
-      basePath: ""
+      basePath: "/statistics"
     },
     gateway: {
       host: "",
@@ -18,17 +18,17 @@ export const config = {
     ticket: {
       host: "",
       port: "",
-      basePath: ""
+      basePath: "/ticket-service-direct"
     },
     flight: {
       host: "",
       port: "",
-      basePath: ""
+      basePath: "/flight-service-direct"
     },
     bonus: {
       host: "",
       port: "",
-      basePath: ""
+      basePath: "/bonus-service-direct"
     },
   },
 };
