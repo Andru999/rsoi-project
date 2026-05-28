@@ -3,43 +3,45 @@ import { useEffect, useState } from 'react';
 import GatewayService from '../../services/GatewayService';
 import { IUserInfo } from '../../interfaces/User/IUserInfo';
 
-
 export function useTicketsBoard() {
-	const [userInfo, setUserInfo] = useState<IUserInfo>();
-	const [error, setError] = useState(false);
+  const [userInfo, setUserInfo] = useState<IUserInfo>();
+  const [error, setError] = useState(false);
 
-	async function handleUpdateTable() {
-		await fetchUserInfo();
-	};
+  async function handleUpdateTable() {
+    await fetchUserInfo();
+  }
 
-	async function ticketRefund(ticketUid: string) {
-		const response = await GatewayService.ticketRefund(ticketUid)
-		if (response?.status === 204) {
-			await fetchUserInfo();
-		} else {
-			setError(true);
-		}
-	};
+  async function ticketRefund(ticketUid: string) {
+    const success = await GatewayService.ticketRefund(ticketUid);
 
-	async function fetchUserInfo() {
-		const response = await GatewayService.getUserInformation();
-		if (response) {
-			setError(false);
-			setUserInfo(response);
-		} else {
-			setError(true);
-			setUserInfo(undefined);
-		}
-	};
-	
-	useEffect(() => {
-		fetchUserInfo();
-	}, []);
+    if (success) {
+      await fetchUserInfo();
+      setError(false);
+    } else {
+      setError(true);
+    }
+  }
 
-	return { 
-		userInfo,
-		error,
-		handleUpdateTable,
-		ticketRefund,
-	};
-};
+  async function fetchUserInfo() {
+    const response = await GatewayService.getUserInformation();
+
+    if (response) {
+      setError(false);
+      setUserInfo(response);
+    } else {
+      setError(true);
+      setUserInfo(undefined);
+    }
+  }
+
+  useEffect(() => {
+    fetchUserInfo();
+  }, []);
+
+  return {
+    userInfo,
+    error,
+    handleUpdateTable,
+    ticketRefund,
+  };
+}
