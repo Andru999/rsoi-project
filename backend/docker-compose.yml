@@ -91,7 +91,7 @@ services:
       retries: 10
 
   bonus-service:
-    image: bonus_service
+    image: bonus-service
     container_name: bonus-service
     build:
       context: "."
@@ -105,7 +105,7 @@ services:
         condition: service_healthy
 
   flight-service:
-    image: flight_service
+    image: flight-service
     container_name: flight-service
     build:
       context: "."
@@ -119,7 +119,7 @@ services:
         condition: service_healthy
 
   ticket-service:
-    image: ticket_service
+    image: ticket-service
     container_name: ticket-service
     build:
       context: "."
@@ -133,7 +133,7 @@ services:
         condition: service_healthy
 
   auth-service:
-    image: auth_service
+    image: auth-service
     container_name: auth-service
     build:
       context: "."
@@ -147,7 +147,7 @@ services:
         condition: service_healthy
 
   gateway-service:
-    image: gateway_service
+    image: gateway-service
     container_name: gateway-service
     build:
       context: "."
@@ -191,7 +191,7 @@ services:
       retries: 5
 
   statistics-service:
-    image: statistics_service
+    image: statistics-service
     container_name: statistics-service
     build:
       context: "."
@@ -209,7 +209,7 @@ services:
         condition: service_healthy
 
   consumer-service:
-    image: consumer_service
+    image: consumer-service
     container_name: consumer-service
     build:
       context: "."

@@ -3,6 +3,7 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
+imagePullPolicy: IfNotPresent
 
 services:
   bonus-service:
@@ -69,6 +70,7 @@ services:
     targetPort: 0
 
   gateway-service:
+    type: NodePort
     name: gateway-service
     container: gateway-service:latest
     replicaCount: 1
@@ -78,21 +80,45 @@ services:
       TICKET_SERVICE_URL: "http://ticket-service:8070/api/v1/"
       AUTH_SERVICE_URL: "http://auth-service:8888/"
       STATISTICS_SERVICE_URL: "http://statistics-service:8090/"
+      AUTH_JWKS_URL: "http://auth-service:8888/.well-known/jwks.json"
     publishUrl: /api
     port: 8080
     targetPort: 8080
 
   dips-client:
+    type: NodePort
     name: dips-client
     container: dips-client:latest
     replicaCount: 1
-    env:
-      AUTH_SERVICE_URL: "http://auth-service:8888"
-      STATISTICS_SERVICE_URL: "http://statistics-service:8090"
-      GATEWAY_SERVICE_URL: "http://gateway-service:8080"
-      TICKET_SERVICE_URL: "http://ticket-service:8070"
-      FLIGHT_SERVICE_URL: "http://flight-service:8060"
-      BONUS_SERVICE_URL: "http://bonus-service:8050"
+    env: {}
     publishUrl: /
     port: 80
     targetPort: 80
+
+  zookeeper:
+    name: zookeeper
+    container: confluentinc/cp-zookeeper:latest
+    replicaCount: 1
+    env:
+      ZOOKEEPER_CLIENT_PORT: "2181"
+      ZOOKEEPER_TICK_TIME: "2000"
+    publishUrl: ""
+    port: 2181
+    targetPort: 2181
+
+  kafka:
+    name: kafka-broker
+    container: confluentinc/cp-kafka:7.3.2
+    replicaCount: 1
+    env:
+      KAFKA_BROKER_ID: "1"
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_LISTENERS: "PLAINTEXT://:29092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka-broker:29092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_LOG_DIRS: "/tmp/kafka-logs"
+    publishUrl: ""
+    port: 29092
+    targetPort: 29092
