@@ -1,83 +1,28 @@
-{{- $frontendService := "" }}
-{{- $gatewayService := "" }}
-{{- $apiServices := list }}
-{{- range $key, $val := .Values.services }}
-{{- if and (hasKey $val "publishUrl") (ne $val.publishUrl "") }}
-{{- if eq $val.publishUrl "/" }}
-{{- $frontendService = $val }}
-{{- else if eq $val.publishUrl "/api" }}
-{{- $gatewayService = $val }}
-{{- else }}
-{{- $apiServices = append $apiServices $val }}
-{{- end }}
-{{- end }}
-{{- end }}
-
-# 1. Фронтенд Ingress (без rewrite)
-{{- if $frontendService }}
----
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: frontend-ingress
+  name: app-ingress
 spec:
   ingressClassName: nginx
-  rules:
-    - http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ $frontendService.name }}
-                port:
-                  number: {{ $frontendService.port }}
-{{- end }}
 
-# 2. Gateway Ingress (без rewrite)
-{{- if $gatewayService }}
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: gateway-ingress
-spec:
-  ingressClassName: nginx
   rules:
     - http:
         paths:
+
+          # API -> gateway-service
           - path: /api
             pathType: Prefix
             backend:
               service:
-                name: {{ $gatewayService.name }}
+                name: gateway-service
                 port:
-                  number: {{ $gatewayService.port }}
-{{- end }}
+                  number: 8080
 
-# 3. API-сервисы с rewrite (все, кроме /api и /)
-{{- if $apiServices }}
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: api-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-spec:
-  ingressClassName: nginx
-  rules:
-    - http:
-        paths:
-          {{- range $apiServices }}
-          {{- $path := trimSuffix "/" .publishUrl }}
-          - path: {{ (printf "%s(/|$)(.*)" $path) | quote }}
-            pathType: ImplementationSpecific
+          # Frontend
+          - path: /
+            pathType: Prefix
             backend:
               service:
-                name: {{ .name }}
+                name: dips-client
                 port:
-                  number: {{ .port }}
-          {{- end }}
-{{- end }}
+                  number: 80
