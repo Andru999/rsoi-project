@@ -9,8 +9,7 @@ import { ITicket } from "../interfaces/Ticket/ITicket";
 export default class GatewayService {
   static async getInfoOnUserTicket(ticketUid: string): Promise<ITicket | null> {
     try {
-      const response = await api.get<ITicket>(`/tickets/${ticketUid}`);
-      return response.data;
+      return await api.get<ITicket>(`/tickets/${ticketUid}`);
     } catch (error) {
       console.log("getInfoOnUserTicket error", error);
       return null;
@@ -19,30 +18,29 @@ export default class GatewayService {
 
   static async buyTicket(buyTicket: IBuyTicket): Promise<ITicketResponse | null> {
     try {
-      const response = await api.post<ITicketResponse>(
+      return await api.post<ITicketResponse>(
         "/tickets",
         buyTicket
       );
-      return response.data;
     } catch (error) {
       console.log("buyTicket error", error);
       return null;
     }
   }
 
-  static async ticketRefund(ticketUid: string): Promise<void | null> {
+  static async ticketRefund(ticketUid: string): Promise<boolean> {
     try {
       await api.delete(`/tickets/${ticketUid}`);
+      return true;
     } catch (error) {
       console.log("ticketRefund error", error);
-      return null;
+      return false;
     }
   }
 
   static async getUserInformation(): Promise<IUserInfo | null> {
     try {
-      const response = await api.get<IUserInfo>("/me");
-      return response.data;
+      return await api.get<IUserInfo>("/me");
     } catch (error) {
       console.log("getUserInformation error", error);
       return null;
@@ -51,8 +49,7 @@ export default class GatewayService {
 
   static async getInfoAboutBonusAccount(): Promise<IPrivilegeResponse | null> {
     try {
-      const response = await api.get<IPrivilegeResponse>("/privilege");
-      return response.data;
+      return await api.get<IPrivilegeResponse>("/privilege");
     } catch (error) {
       console.log("getInfoAboutBonusAccount error", error);
       return null;
