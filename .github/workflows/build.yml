@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - try_number_two
   pull_request:
     branches:
       - master
