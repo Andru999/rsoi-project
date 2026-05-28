@@ -7,7 +7,7 @@ import { config } from "../config";
  * frontend → /api/v1 → ingress → gateway-service → микросервисы
  */
 export const api = axios.create({
-  baseURL: config.api.baseUrl, // "/api/v1"
+  baseURL: config.api.baseUrl,
 });
 
 // ======================
@@ -54,8 +54,14 @@ api.interceptors.response.use(
 
         const newAccessToken = response.data.access_token;
 
+        if (!newAccessToken) {
+          localStorage.clear();
+          return Promise.reject("No access token in refresh response");
+        }
+
         localStorage.setItem("accessToken", newAccessToken);
 
+        originalRequest.headers = originalRequest.headers ?? {};
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
         return api.request(originalRequest);

@@ -13,7 +13,7 @@ const GatewayRequests = {
     size: number,
     sortField: SortFlights,
     filterTable: IFilterFlight,
-  ) {
+  ): Promise<IPaginationFlight | null> {
     const url =
       `${baseRequestURL}/flights` +
       `?page=${page + 1}&size=${size}` +
@@ -41,9 +41,11 @@ const GatewayRequests = {
         : "");
 
     try {
-      return await axios.get<IPaginationFlight>(url);
+      const response = await axios.get<IPaginationFlight>(url);
+      return response.data;
     } catch (error) {
       console.log("Gateway: getListOfFlights network error", error);
+      return null;
     }
   },
 };

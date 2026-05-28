@@ -11,8 +11,14 @@ export default class AuthService {
         { login, password }
       );
 
-      localStorage.setItem("accessToken", response.data.access_token);
-      localStorage.setItem("refreshToken", response.data.refresh_token);
+      const { access_token, refresh_token } = response.data;
+
+      if (!access_token || !refresh_token) {
+        return "Invalid auth response: missing tokens";
+      }
+
+      localStorage.setItem("accessToken", access_token);
+      localStorage.setItem("refreshToken", refresh_token);
 
       return null;
     } catch (error) {
@@ -30,8 +36,14 @@ export default class AuthService {
         }
       );
 
-      localStorage.setItem("accessToken", response.data.access_token);
-      localStorage.setItem("refreshToken", response.data.refresh_token);
+      const { access_token, refresh_token } = response.data;
+
+      if (!access_token || !refresh_token) {
+        return "Invalid auth response: missing tokens";
+      }
+
+      localStorage.setItem("accessToken", access_token);
+      localStorage.setItem("refreshToken", refresh_token);
 
       return null;
     } catch (error) {
@@ -52,12 +64,16 @@ export default class AuthService {
       if (error.response?.data?.message) {
         let message = error.response.data.message;
 
-        if (error.response.status === 400 && error.response.data.errors?.length) {
+        if (
+          error.response.status === 400 &&
+          error.response.data.errors?.length
+        ) {
           message += `: ${error.response.data.errors[0].loc} - ${error.response.data.errors[0].msg}`;
         }
 
         return message;
       }
+
       return error.message;
     }
 
