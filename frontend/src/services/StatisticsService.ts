@@ -1,15 +1,20 @@
 import { IPaginationStatistics } from "../interfaces/Statistics/IPaginationStatistics";
-import { $apiStatistics } from "./AxiosInstances";
-
+import { api } from "./AxiosInstances";
 
 export default class StatisticsService {
-  static async getAll(page: number, rowsPerPage: number) {
+  static async getAll(
+    page: number,
+    rowsPerPage: number
+  ): Promise<IPaginationStatistics | null> {
     try {
-      return await $apiStatistics.get<IPaginationStatistics>(
-        `/statistics/?page=${ page + 1 }&size=${ rowsPerPage }`
+      const response = await api.get<IPaginationStatistics>(
+        `/statistics?page=${page + 1}&size=${rowsPerPage}`
       );
-    } catch {
+
+      return response.data;
+    } catch (error) {
+      console.log("StatisticsService.getAll error:", error);
       return null;
     }
-  };
+  }
 }

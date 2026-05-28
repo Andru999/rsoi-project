@@ -1,49 +1,61 @@
-import { $apiGateway } from "./AxiosInstances";
+import { api } from "./AxiosInstances";
+
 import { ITicketResponse } from "../interfaces/Ticket/ITicketResponse";
 import { IBuyTicket } from "../interfaces/Ticket/IBuyTicket";
 import { IUserInfo } from "../interfaces/User/IUserInfo";
 import { IPrivilegeResponse } from "../interfaces/Bonus/IPrivilegeResponse";
 import { ITicket } from "../interfaces/Ticket/ITicket";
 
-
 export default class GatewayService {
-  static async getInfoOnUserTicket(ticketUid: string) {
+  static async getInfoOnUserTicket(ticketUid: string): Promise<ITicket | null> {
     try {
-      return await $apiGateway.get<ITicket>(`/tickets/${ticketUid}`);
-    } catch {
+      const response = await api.get<ITicket>(`/tickets/${ticketUid}`);
+      return response.data;
+    } catch (error) {
+      console.log("getInfoOnUserTicket error", error);
       return null;
     }
-  };
+  }
 
-  static async buyTicket(buyTicket: IBuyTicket) {
+  static async buyTicket(buyTicket: IBuyTicket): Promise<ITicketResponse | null> {
     try {
-      return await $apiGateway.post<ITicketResponse>('/tickets', buyTicket);
-    } catch {
+      const response = await api.post<ITicketResponse>(
+        "/tickets",
+        buyTicket
+      );
+      return response.data;
+    } catch (error) {
+      console.log("buyTicket error", error);
       return null;
     }
-  };
+  }
 
-  static async ticketRefund(ticketUid: string) {
+  static async ticketRefund(ticketUid: string): Promise<void | null> {
     try {
-      return await $apiGateway.delete(`/tickets/${ticketUid}`);
-    } catch {
+      await api.delete(`/tickets/${ticketUid}`);
+    } catch (error) {
+      console.log("ticketRefund error", error);
       return null;
     }
-  };
+  }
 
-  static async getUserInformation() {
+  static async getUserInformation(): Promise<IUserInfo | null> {
     try {
-      return await $apiGateway.get<IUserInfo>('/me');
-    } catch {
+      const response = await api.get<IUserInfo>("/me");
+      return response.data;
+    } catch (error) {
+      console.log("getUserInformation error", error);
       return null;
     }
-  };
+  }
 
-  static async getInfoAboutBonusAccount() {
+  static async getInfoAboutBonusAccount(): Promise<IPrivilegeResponse | null> {
     try {
-      return await $apiGateway.get<IPrivilegeResponse>('/privilege');
-    } catch {
+      const response = await api.get<IPrivilegeResponse>("/privilege");
+      return response.data;
+    } catch (error) {
+      console.log("getInfoAboutBonusAccount error", error);
       return null;
     }
-  };
+  }
 }
