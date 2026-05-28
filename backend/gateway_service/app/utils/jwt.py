@@ -28,12 +28,12 @@ def __construct_jwks_auth_url() -> str:
     return f"http://{host}:{port}/api/v1/user/.well-known/jwks.json"
 
 
-# def __get_jwks() -> JWKSet:
-#     url = __construct_jwks_auth_url()
-#     response = get_request(url=url)
-#
-#     return __transform_dict_to_jwks(response.json())
-
 def __get_jwks() -> JWKSet:
-    # Временная заглушка: возвращаем пустой JWKSet, чтобы исключить сетевой вызов
-    return JWKSet()
+    url = __construct_jwks_auth_url()
+    response = get_request(url=url)
+
+    return __transform_dict_to_jwks(response.json())
+
+# def __get_jwks() -> JWKSet:
+#     # Временная заглушка: возвращаем пустой JWKSet, чтобы исключить сетевой вызов
+#     return JWKSet()
