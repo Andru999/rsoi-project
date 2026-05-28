@@ -7,7 +7,7 @@ export default class AuthService {
   static async login(login: string, password: string): Promise<string | null> {
     try {
       const response = await api.post<IAuthResponse>(
-        "/auth/user/login/",
+        "/user/login/",
         { login, password }
       );
 
@@ -29,7 +29,7 @@ export default class AuthService {
   static async register(registerDto: ICreateUser): Promise<string | null> {
     try {
       const response = await api.post<IAuthResponse>(
-        "/auth/user/register/",
+        "/user/register/",
         {
           ...registerDto,
           role: "USER",

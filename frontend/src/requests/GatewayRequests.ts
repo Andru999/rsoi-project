@@ -5,7 +5,7 @@ import { IFilterFlight } from "../interfaces/Flight/IFilterFlight";
 import { IPaginationFlight } from "../interfaces/Flight/IPaginationFlight";
 import { config } from "../config";
 
-const baseRequestURL = `${config.api.baseUrl}/v1`;
+const baseRequestURL = config.api.baseUrl;
 
 const GatewayRequests = {
   async getListOfFlights(
