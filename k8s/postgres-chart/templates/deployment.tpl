@@ -28,7 +28,7 @@ spec:
       containers:
         - name: {{.service.name}}
           image: library/postgres:{{ .ctx.Values.version }}-alpine
-          imagePullPolicy: Always
+          imagePullPolicy: Never
           env:
             - name: POSTGRES_USER
               value: {{ .ctx.Values.default_database.user }}
