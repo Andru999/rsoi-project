@@ -130,10 +130,10 @@ export function useStatisticsTable() {
 		const response = await StatisticsService.getAll(page, rowsPerPage);
 		if (response) {
 			setError(false);
-			setStatistics(response.data.items);
-			setStatusCodeChart(countStatusCode(response.data.items));
-			setMethodChart(countMethod(response.data.items));
-			setAmountStatistics(response.data.totalElements);
+			setStatistics(response.items);
+			setStatusCodeChart(countStatusCode(response.items));
+			setMethodChart(countMethod(response.items));
+			setAmountStatistics(response.totalElements);
 		} else {
 			setError(true);
 			setStatistics([]);

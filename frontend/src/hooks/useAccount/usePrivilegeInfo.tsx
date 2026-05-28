@@ -35,7 +35,7 @@ export function usePrivilegeInfo() {
 		const response = await GatewayService.getInfoAboutBonusAccount();
 		if (response) {
 			setError(false);
-			setPrivilegeInfo(response.data);
+			setPrivilegeInfo(response);
 		} else {
 			setError(true);
 		}

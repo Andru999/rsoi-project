@@ -25,7 +25,7 @@ export function useTicketsBoard() {
 		const response = await GatewayService.getUserInformation();
 		if (response) {
 			setError(false);
-			setUserInfo(response.data);
+			setUserInfo(response);
 		} else {
 			setError(true);
 			setUserInfo(undefined);

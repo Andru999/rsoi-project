@@ -146,7 +146,7 @@ export function BuyTicketWindow(props: BuyTicketWindowProps) {
 							if (response) {
 								confirmBuyWindow.handleCloseWindow();
 								props.onClose();
-								props.handleOpenPurchaseInfoWindow(response.data);
+								props.handleOpenPurchaseInfoWindow(response);
 								await props.handleUpdatePrivilege();
 							} else {
 								navigate("/network_error");

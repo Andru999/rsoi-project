@@ -77,8 +77,8 @@ export function useFlightsTable() {
 		const response = await GatewayRequests.getListOfFlights(page, rowsPerPage, sortTable, filterTable);
 		if (response) {
 			setError(false);
-			setFlights(response.data.items);
-			setAmountFlights(response.data.totalElements);
+			setFlights(response.items);
+			setAmountFlights(response.totalElements);
 		} else {
 			setError(true);
 			setFlights([]);
@@ -91,7 +91,7 @@ export function useFlightsTable() {
 			const response = await GatewayService.getUserInformation();
 			if (response) {
 				setError(false);
-				setPrivilege(response.data.privilege);
+				setPrivilege(response.privilege);
 			} else {
 				setError(true);
 				setPrivilege(null);

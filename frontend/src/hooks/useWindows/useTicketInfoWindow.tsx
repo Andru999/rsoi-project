@@ -13,7 +13,7 @@ export function useTicketInfoWindow() {
 	const handleOpenWindow = async (ticketUid: string) => {
 		const response = await GatewayService.getInfoOnUserTicket(ticketUid);
 		if (response) {
-			setTicket(response.data);
+			setTicket(response);
 			setVisibility(true);
 		} else {
 			navigate("/network_error");
