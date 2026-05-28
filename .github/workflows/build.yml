@@ -1,122 +1,111 @@
-name: Build & Deploy to Minikube
+name: Build & Deploy to Yandex Cloud
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master, yandex-cloud ]
   pull_request:
-    branches:
-      - master
+    branches: [ master ]
+
+env:
+  REGISTRY_ID: ${{ vars.REGISTRY_ID }}          # ID Container Registry
+  K8S_CLUSTER_ID: ${{ vars.K8S_CLUSTER_ID }}    # ID Managed Kubernetes кластера
 
 jobs:
   deploy:
-    name: Full Deploy
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
-      # 1. Получаем код
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 2. Проверяем и при необходимости запускаем Minikube
-      - name: Start Minikube if not running
-        run: |
-          $status = minikube status --format "{{.Host}}" 2>$null
-          if ($status -ne "Running") {
-            Write-Host "Minikube is not running. Starting..."
-            minikube start --driver=docker
-            minikube addons enable ingress
-          } else {
-            Write-Host "Minikube is already running."
-          }
-        shell: powershell
+      # 1. Аутентификация в Яндекс.Облаке через сервисный аккаунт
+      - name: Set up yc CLI
+        uses: yandex-cloud/setup-yc@v1
+        with:
+          yc-sa-json-credentials: ${{ secrets.YANDEX_CLOUD_SA_KEY }}
 
-      # 2. Переключаем Docker на демон Minikube
-      - name: Switch to Minikube Docker daemon
-        run: |
-          $envOutput = minikube docker-env --shell powershell
-          $envLines = $envOutput -split "`r?`n" | Where-Object { $_ -match '^\$Env:' }
-          if ($envLines) {
-              $envLines -join "`n" | Invoke-Expression
-              Write-Host "Switched to Minikube Docker daemon"
-              # Проверяем, что теперь работаем с Minikube
-              docker info --format '{{ .Name }}' | Select-String "minikube"
-          } else {
-              Write-Error "Failed to switch Docker daemon. Output: $envOutput"
-              exit 1
-          }
-        shell: powershell
+      # 2. Настройка Docker для Container Registry
+      - name: Configure Docker for Yandex Container Registry
+        run: yc container registry configure-docker
 
-      # 3. Сборка образов backend – теперь сразу в Minikube
-      - name: Build backend images (inside Minikube)
+      # 3. Сборка и публикация backend-образов
+      - name: Build and push backend images
         run: |
           cd backend
-          docker compose build
-        shell: powershell
+          docker build -t cr.yandex/${{ env.REGISTRY_ID }}/bonus-service:latest -f ./docker/bonus.Dockerfile .
+          docker build -t cr.yandex/${{ env.REGISTRY_ID }}/flight-service:latest -f ./docker/flight.Dockerfile .
+          docker build -t cr.yandex/${{ env.REGISTRY_ID }}/ticket-service:latest -f ./docker/ticket.Dockerfile .
+          docker build -t cr.yandex/${{ env.REGISTRY_ID }}/auth-service:latest -f ./docker/auth.Dockerfile .
+          docker build -t cr.yandex/${{ env.REGISTRY_ID }}/gateway-service:latest -f ./docker/gateway.Dockerfile .
+          docker build -t cr.yandex/${{ env.REGISTRY_ID }}/statistics-service:latest -f ./docker/statistics.Dockerfile .
+          docker build -t cr.yandex/${{ env.REGISTRY_ID }}/consumer-service:latest -f ./docker/consumer.Dockerfile .
 
-      # 4. Сборка frontend – также в Minikube
-      - name: Build frontend image (inside Minikube)
+          docker push cr.yandex/${{ env.REGISTRY_ID }}/bonus-service:latest
+          docker push cr.yandex/${{ env.REGISTRY_ID }}/flight-service:latest
+          docker push cr.yandex/${{ env.REGISTRY_ID }}/ticket-service:latest
+          docker push cr.yandex/${{ env.REGISTRY_ID }}/auth-service:latest
+          docker push cr.yandex/${{ env.REGISTRY_ID }}/gateway-service:latest
+          docker push cr.yandex/${{ env.REGISTRY_ID }}/statistics-service:latest
+          docker push cr.yandex/${{ env.REGISTRY_ID }}/consumer-service:latest
+
+      # 4. Сборка и публикация frontend-образа
+      - name: Build and push frontend image
         run: |
           cd frontend
-          docker compose build
-        shell: powershell
+          docker build -t cr.yandex/${{ env.REGISTRY_ID }}/dips-client:latest .
+          docker push cr.yandex/${{ env.REGISTRY_ID }}/dips-client:latest
 
-      # 6. Создание ConfigMap со скриптами инициализации БД
+      # 5. Получение kubeconfig для кластера
+      - name: Get k8s credentials
+        run: |
+          yc managed-kubernetes cluster get-credentials ${{ env.K8S_CLUSTER_ID }} --external --force
+
+      # 6. ConfigMap'ы со скриптами инициализации БД
       - name: Create init-sql ConfigMaps
         run: |
           kubectl create configmap db-configmap-bonusdb --from-file=backend/bonus_service/sql/init_db.sql --dry-run=client -o yaml | kubectl apply -f -
           kubectl create configmap db-configmap-flightdb --from-file=backend/flight_service/sql/init_db.sql --dry-run=client -o yaml | kubectl apply -f -
           kubectl create configmap db-configmap-ticketdb --from-file=backend/ticket_service/sql/init_db.sql --dry-run=client -o yaml | kubectl apply -f -
           kubectl create configmap db-configmap-authdb --from-file=backend/auth_service/sql/init_db.sql --dry-run=client -o yaml | kubectl apply -f -
-#          kubectl create configmap db-configmap-statisticsdb --from-file=backend/statistics_service/sql/init_db.sql --dry-run=client -o yaml | kubectl apply -f -
 
-        shell: powershell
-
-      # 7. Удаляем старый релиз Kafka, если он остался (чтобы не было конфликта имён)
+      # 7. Удаление старого релиза Kafka (если есть)
       - name: Remove old Kafka release if present
         run: |
-          if (helm list -q | Select-String -Pattern '^kafka$') {
-            Write-Host "Removing old Kafka release..."
+          if helm list -q | grep -q '^kafka$'; then
+            echo "Removing old Kafka release..."
             helm uninstall kafka
-          }
-        shell: powershell
+          fi
 
-      # 8. Деплой баз данных через postgres-chart
+      # 8. Деплой баз данных (postgres-chart)
       - name: Deploy PostgreSQL databases
         run: |
-          helm upgrade --install db ./k8s/postgres-chart `
-            -f ./k8s/postgres-chart/values.yaml `
+          helm upgrade --install db ./k8s/postgres-chart \
+            -f ./k8s/postgres-chart/values.yaml \
             --wait --timeout 10m
-        shell: powershell
 
-      # 9. Деплой микросервисов и фронтенда через app-chart
+      # 9. Деплой приложения с переопределением образов
       - name: Deploy application services
         run: |
-          helm upgrade --install my-app ./k8s/app-chart `
-            -f ./k8s/app-chart/values.yaml `
+          helm upgrade --install my-app ./k8s/app-chart \
+            -f ./k8s/app-chart/values.yaml \
+            -f ./k8s/app-chart/values-yc.yaml \
             --wait --timeout 15m
-        shell: powershell
 
-      # 10. Запуск minikube tunnel в фоне, чтобы Ingress отвечал на localhost
-      - name: Start minikube tunnel
-        run: |
-          Start-Process -NoNewWindow powershell -ArgumentList "minikube tunnel"
-          Start-Sleep -Seconds 15
-        shell: powershell
+      # 10. Применяем Ingress правила
+      - name: Apply Ingress rules
+        run: kubectl apply -f k8s/Ingress.yaml
 
-      # 11. Ожидание, пока все поды станут Ready
+      # 11. Ожидание готовности всех подов
       - name: Wait for all pods
         run: kubectl wait --for=condition=ready pod --all --timeout=300s
-        shell: powershell
 
       # 12. Диагностика при сбое
       - name: Debug on failure
         if: failure()
         run: |
-          Write-Host "=== Pods ==="
+          echo "=== Pods ==="
           kubectl get pods
-          Write-Host "=== Describe pods ==="
+          echo "=== Describe pods ==="
           kubectl describe pods
-          Write-Host "=== Logs (last 50 lines) ==="
-          kubectl logs --all-containers=true --tail=50 --selector app.kubernetes.io/part-of=simple-backend
-        shell: powershell
+          echo "=== Logs (last 50 lines) ==="
+          kubectl logs --all-containers=true --tail=50 --selector app.kubernetes.io/part-of=simple-backend || true
