@@ -23,7 +23,7 @@ spec:
       containers:
         - name: {{ .ctx.Release.Name }}-{{.service.name}}
           image: {{.service.container}}
-          imagePullPolicy: {{ .service.imagePullPolicy | default "IfNotPresent" }}
+          imagePullPolicy: {{ .service.imagePullPolicy | default "Always" }}
 
           {{- if and (hasKey .service "port") (gt (int .service.port) 0) }}
           ports:
