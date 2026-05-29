@@ -29,7 +29,9 @@ jobs:
       # Шаг 2 – настройка профиля и Docker (yc уже доступен)
       - name: Configure yc and Docker
         run: |
-          echo '${{ secrets.YANDEX_CLOUD_SA_KEY }}' > key.json
+          cat > key.json <<'EOFJSON'
+          ${{ secrets.YANDEX_CLOUD_SA_KEY }}
+          EOFJSON
           yc config profile create sa-profile
           yc config set service-account-key key.json
           yc config set folder-id ${{ vars.FOLDER_ID }}
