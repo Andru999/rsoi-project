@@ -20,7 +20,7 @@ jobs:
 
       # 1. Аутентификация в Яндекс.Облаке через сервисный аккаунт
       - name: Set up yc CLI
-        uses: yandex-cloud/setup-yc@v1
+        uses: yandex-cloud/yc-setup@v1
         with:
           yc-sa-json-credentials: ${{ secrets.YANDEX_CLOUD_SA_KEY }}
 

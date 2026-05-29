@@ -8,7 +8,7 @@ imagePullPolicy: IfNotPresent
 services:
   bonus-service:
     name: bonus-service
-    container: cr.yandex/crp1rjdbtn610kb33ca7/bonus-service:latest
+    container: cr.yandex/catbhh7g7p3368n1rlbh/bonus-service:latest
     replicaCount: 1
     env:
       DB_DSN: "host=bonusdb user=postgres password=password dbname=bonus_db port=5432"
@@ -18,7 +18,7 @@ services:
 
   flight-service:
     name: flight-service
-    container: cr.yandex/crp1rjdbtn610kb33ca7/flight-service:latest
+    container: cr.yandex/catbhh7g7p3368n1rlbh/flight-service:latest
     replicaCount: 1
     env:
       DB_DSN: "host=flightdb user=postgres password=password dbname=flight_db port=5432"
@@ -28,7 +28,7 @@ services:
 
   ticket-service:
     name: ticket-service
-    container: cr.yandex/crp1rjdbtn610kb33ca7/ticket-service:latest
+    container: cr.yandex/catbhh7g7p3368n1rlbh/ticket-service:latest
     replicaCount: 1
     env:
       DB_DSN: "host=ticketdb user=postgres password=password dbname=ticket_db port=5432"
@@ -38,7 +38,7 @@ services:
 
   auth-service:
     name: auth-service
-    container: cr.yandex/crp1rjdbtn610kb33ca7/auth-service:latest
+    container: cr.yandex/catbhh7g7p3368n1rlbh/auth-service:latest
     replicaCount: 1
     env:
       DB_DSN: "host=authdb user=postgres password=password dbname=auth_db port=5432"
@@ -48,7 +48,7 @@ services:
 
   statistics-service:
     name: statistics-service
-    container: cr.yandex/crp1rjdbtn610kb33ca7/statistics-service:latest
+    container: cr.yandex/catbhh7g7p3368n1rlbh/statistics-service:latest
     replicaCount: 1
     env:
       KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
@@ -59,7 +59,7 @@ services:
 
   consumer-service:
     name: consumer-service
-    container: cr.yandex/crp1rjdbtn610kb33ca7/consumer-service:latest
+    container: cr.yandex/catbhh7g7p3368n1rlbh/consumer-service:latest
     replicaCount: 1
     env:
       KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
@@ -72,7 +72,7 @@ services:
   gateway-service:
     type: NodePort
     name: gateway-service
-    container: cr.yandex/crp1rjdbtn610kb33ca7/gateway-service:latest
+    container: cr.yandex/catbhh7g7p3368n1rlbh/gateway-service:latest
     replicaCount: 1
     env:
       BONUS_SERVICE_URL: "http://bonus-service:8050/api/v1/"
@@ -88,7 +88,7 @@ services:
   dips-client:
     type: NodePort
     name: dips-client
-    container: cr.yandex/crp1rjdbtn610kb33ca7/dips-client:latest
+    container: cr.yandex/catbhh7g7p3368n1rlbh/dips-client:latest
     replicaCount: 1
     env: {}
     publishUrl: /
