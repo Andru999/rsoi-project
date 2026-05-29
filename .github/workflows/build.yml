@@ -26,37 +26,37 @@ jobs:
           echo "$HOME/yandex-cloud/bin" >> $GITHUB_PATH
         shell: bash
 
-      # Шаг 2 – настройка профиля и Docker (yc уже доступен)
-      - name: Configure yc and Docker
-        run: |
-          cat > key.json <<'EOFJSON'
-          ${{ secrets.YANDEX_CLOUD_SA_KEY }}
-          EOFJSON
-          yc config profile create sa-profile
-          yc config set service-account-key key.json
-          yc config set folder-id ${{ vars.FOLDER_ID }}
-          yc container registry configure-docker
-        shell: bash
-
-      # 3. Сборка и публикация backend-образов
-      - name: Build and push backend images
-        run: |
-          cd backend
-          docker build --no-cache -t cr.yandex/${{ env.REGISTRY_ID }}/bonus-service:latest -f ./docker/bonus.Dockerfile .
-          docker build --no-cache -t cr.yandex/${{ env.REGISTRY_ID }}/flight-service:latest -f ./docker/flight.Dockerfile .
-          docker build --no-cache -t cr.yandex/${{ env.REGISTRY_ID }}/ticket-service:latest -f ./docker/ticket.Dockerfile .
-          docker build --no-cache -t cr.yandex/${{ env.REGISTRY_ID }}/auth-service:latest -f ./docker/auth.Dockerfile .
-          docker build --no-cache -t cr.yandex/${{ env.REGISTRY_ID }}/gateway-service:latest -f ./docker/gateway.Dockerfile .
-          docker build --no-cache -t cr.yandex/${{ env.REGISTRY_ID }}/statistics-service:latest -f ./docker/statistics.Dockerfile .
-          docker build --no-cache -t cr.yandex/${{ env.REGISTRY_ID }}/consumer-service:latest -f ./docker/consumer.Dockerfile .
-
-          docker push cr.yandex/${{ env.REGISTRY_ID }}/bonus-service:latest
-          docker push cr.yandex/${{ env.REGISTRY_ID }}/flight-service:latest
-          docker push cr.yandex/${{ env.REGISTRY_ID }}/ticket-service:latest
-          docker push cr.yandex/${{ env.REGISTRY_ID }}/auth-service:latest
-          docker push cr.yandex/${{ env.REGISTRY_ID }}/gateway-service:latest
-          docker push cr.yandex/${{ env.REGISTRY_ID }}/statistics-service:latest
-          docker push cr.yandex/${{ env.REGISTRY_ID }}/consumer-service:latest
+#      # Шаг 2 – настройка профиля и Docker (yc уже доступен)
+#      - name: Configure yc and Docker
+#        run: |
+#          cat > key.json <<'EOFJSON'
+#          ${{ secrets.YANDEX_CLOUD_SA_KEY }}
+#          EOFJSON
+#          yc config profile create sa-profile
+#          yc config set service-account-key key.json
+#          yc config set folder-id ${{ vars.FOLDER_ID }}
+#          yc container registry configure-docker
+#        shell: bash
+#
+#      # 3. Сборка и публикация backend-образов
+#      - name: Build and push backend images
+#        run: |
+#          cd backend
+#          docker build --no-cache -t cr.yandex/${{ env.REGISTRY_ID }}/bonus-service:latest -f ./docker/bonus.Dockerfile .
+#          docker build --no-cache -t cr.yandex/${{ env.REGISTRY_ID }}/flight-service:latest -f ./docker/flight.Dockerfile .
+#          docker build --no-cache -t cr.yandex/${{ env.REGISTRY_ID }}/ticket-service:latest -f ./docker/ticket.Dockerfile .
+#          docker build --no-cache -t cr.yandex/${{ env.REGISTRY_ID }}/auth-service:latest -f ./docker/auth.Dockerfile .
+#          docker build --no-cache -t cr.yandex/${{ env.REGISTRY_ID }}/gateway-service:latest -f ./docker/gateway.Dockerfile .
+#          docker build --no-cache -t cr.yandex/${{ env.REGISTRY_ID }}/statistics-service:latest -f ./docker/statistics.Dockerfile .
+#          docker build --no-cache -t cr.yandex/${{ env.REGISTRY_ID }}/consumer-service:latest -f ./docker/consumer.Dockerfile .
+#
+#          docker push cr.yandex/${{ env.REGISTRY_ID }}/bonus-service:latest
+#          docker push cr.yandex/${{ env.REGISTRY_ID }}/flight-service:latest
+#          docker push cr.yandex/${{ env.REGISTRY_ID }}/ticket-service:latest
+#          docker push cr.yandex/${{ env.REGISTRY_ID }}/auth-service:latest
+#          docker push cr.yandex/${{ env.REGISTRY_ID }}/gateway-service:latest
+#          docker push cr.yandex/${{ env.REGISTRY_ID }}/statistics-service:latest
+#          docker push cr.yandex/${{ env.REGISTRY_ID }}/consumer-service:latest
 #
 #      # 4. Сборка и публикация frontend-образа
 #      - name: Build and push frontend image
@@ -73,8 +73,8 @@ jobs:
       # 6. ConfigMap'ы со скриптами инициализации БД
       - name: Create init-sql ConfigMaps
         run: |
-          kubectl delete deployment authdb bonusdb flightdb ticketdb statisticsdb
-          kubectl delete deployment my-app-bonus-service-dep my-app-flight-service-dep my-app-ticket-service-dep my-app-auth-service-dep my-app-statistics-service-dep my-app-consumer-service-dep my-app-gateway-service-dep my-app-dips-client-dep
+#          kubectl delete deployment authdb bonusdb flightdb ticketdb statisticsdb
+#          kubectl delete deployment my-app-bonus-service-dep my-app-flight-service-dep my-app-ticket-service-dep my-app-auth-service-dep my-app-statistics-service-dep my-app-consumer-service-dep my-app-gateway-service-dep my-app-dips-client-dep
 #          kubectl delete service my-app-bonus-service my-app-flight-service my-app-ticket-service my-app-auth-service my-app-statistics-service my-app-consumer-service my-app-gateway-service my-app-dips-client
 #          kubectl delete service authdb bonusdb flightdb ticketdb statisticsdb
 #          kubectl scale deployment authdb bonusdb flightdb statisticsdb ticketdb --replicas=0
