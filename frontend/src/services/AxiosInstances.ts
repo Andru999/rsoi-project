@@ -1,120 +1,56 @@
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
-
 import { IAuthResponse } from "../interfaces/Auth/IAuthResponse";
 import { config } from "../config";
 
-
-axios.defaults.headers.common['Access-Control-Allow-Headers'] = '*';
-axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
-axios.defaults.headers.common['Access-Control-Allow-Methods'] = '*';
-
-
-export const $apiAuth = axios.create({
-  baseURL: 
-		`http://${config.server.auth.host}:${config.server.auth.port}/api/v1`,
-});
-export const $apiUser = axios.create({
-  baseURL: 
-		`http://${config.server.auth.host}:${config.server.auth.port}/api/v1`,
-});
-export const $apiGateway= axios.create({
-  baseURL: 
-		`http://${config.server.gateway.host}:${config.server.gateway.port}/api/v1`,
-});
-export const $apiStatistics= axios.create({
-  baseURL: 
-		`http://${config.server.statistics.host}:${config.server.statistics.port}/api/v1`,
+// Единый экземпляр axios
+const api = axios.create({
+  baseURL: config.api.baseUrl, // "/api/v1"
 });
 
-
-$apiUser.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  config.headers.Authorization = `Bearer ${localStorage.getItem("accessToken")}`;
-  return config;
-});
-
-$apiUser.interceptors.response.use((config: AxiosResponse) => {
-  return config;
-}, (async (error) => {
-  const originalRequest = error.config;
-  if (error.response.status === 401 && error.config && !error.config._isRetry) {
-    originalRequest._isRetry = true;
-    try {
-      const data = {
-        "refresh_token": localStorage.getItem("refreshToken"),
-      };
-      const response = await $apiAuth.post<IAuthResponse>(`/user/refresh/`, data).catch(_ => {
-        localStorage.clear();
-      });
-      
-      if (response) {
-        localStorage.setItem("accessToken", response.data.access_token as string);
-        return $apiUser.request(originalRequest);
-      }
-    } catch (e) {
-      console.log(e);
-    }
+// Интерсептор запроса: добавляем токен, если есть
+api.interceptors.request.use((cfg: InternalAxiosRequestConfig) => {
+  const token = localStorage.getItem("accessToken");
+  if (token) {
+    cfg.headers.Authorization = `Bearer ${token}`;
   }
-  throw error;
-}));
-
-
-$apiGateway.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  config.headers.Authorization = `Bearer ${localStorage.getItem("accessToken")}`;
-  return config;
+  return cfg;
 });
 
-$apiGateway.interceptors.response.use((config: AxiosResponse) => {
-  return config;
-}, (async (error) => {
-  const originalRequest = error.config;
-  if (error.response.status === 401 && error.config && !error.config._isRetry) {
-    originalRequest._isRetry = true;
-    try {
-      const data = {
-        "refresh_token": localStorage.getItem("refreshToken"),
-      };
-      const response = await $apiAuth.post<IAuthResponse>(`/user/refresh/`, data).catch(_ => {
+// Интерсептор ответа: обработка 401 и попытка обновить токен
+api.interceptors.response.use(
+  (response: AxiosResponse) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest._isRetry
+    ) {
+      originalRequest._isRetry = true;
+      try {
+        const refreshToken = localStorage.getItem("refreshToken");
+        const response = await axios.post<IAuthResponse>(
+          `${config.api.baseUrl}/user/refresh/`,
+          { refresh_token: refreshToken }
+        );
+        const newAccessToken = response.data.access_token;
+        if (newAccessToken) {
+          localStorage.setItem("accessToken", newAccessToken);
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          return api.request(originalRequest);
+        }
+      } catch (e) {
         localStorage.clear();
-      });
-      
-      if (response) {
-        localStorage.setItem("accessToken", response.data.access_token as string);
-        return $apiGateway.request(originalRequest);
+        // опционально можно редиректить на логин
       }
-    } catch (e) {
-      console.log(e);
     }
+    return Promise.reject(error);
   }
-  throw error;
-}));
+);
 
-
-$apiStatistics.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  config.headers.Authorization = `Bearer ${localStorage.getItem("accessToken")}`;
-  return config;
-});
-
-$apiStatistics.interceptors.response.use((config: AxiosResponse) => {
-  return config;
-}, (async (error) => {
-  const originalRequest = error.config;
-  if (error.response.status === 401 && error.config && !error.config._isRetry) {
-    originalRequest._isRetry = true;
-    try {
-      const data = {
-        "refresh_token": localStorage.getItem("refreshToken"),
-      };
-      const response = await $apiAuth.post<IAuthResponse>(`/user/refresh/`, data).catch(_ => {
-        localStorage.clear();
-      });
-      
-      if (response) {
-        localStorage.setItem("accessToken", response.data.access_token as string);
-        return $apiStatistics.request(originalRequest);
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  }
-  throw error;
-}));
+// Для обратной совместимости с существующим кодом,
+// который импортирует $apiAuth, $apiUser, $apiGateway и $apiStatistics
+export const $apiAuth = api;
+export const $apiUser = api;
+export const $apiGateway = api;
+export const $apiStatistics = api;

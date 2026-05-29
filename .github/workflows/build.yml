@@ -57,13 +57,13 @@ jobs:
 #          docker push cr.yandex/${{ env.REGISTRY_ID }}/gateway-service:latest
 #          docker push cr.yandex/${{ env.REGISTRY_ID }}/statistics-service:latest
 #          docker push cr.yandex/${{ env.REGISTRY_ID }}/consumer-service:latest
-#
-#      # 4. Сборка и публикация frontend-образа
-#      - name: Build and push frontend image
-#        run: |
-#          cd frontend
-#          docker build --no-cache -t cr.yandex/${{ env.REGISTRY_ID }}/dips-client:latest .
-#          docker push cr.yandex/${{ env.REGISTRY_ID }}/dips-client:latest
+
+      # 4. Сборка и публикация frontend-образа
+      - name: Build and push frontend image
+        run: |
+          cd frontend
+          docker build --no-cache -t cr.yandex/${{ env.REGISTRY_ID }}/dips-client:latest .
+          docker push cr.yandex/${{ env.REGISTRY_ID }}/dips-client:latest
 
       # 5. Получение kubeconfig для кластера
       - name: Get k8s credentials
@@ -108,14 +108,14 @@ jobs:
             -f ./k8s/postgres-chart/values.yaml \
             --wait --timeout 10m
 
-#      - name: Force unlock my-app release
-#        run: |
-#          echo "Deleting Helm secrets for release 'my-app'..."
-#          kubectl delete secret -l owner=helm,name=my-app --ignore-not-found
-#          echo "Attempting to uninstall any lingering release..."
-#          helm uninstall my-app --ignore-not-found 2>/dev/null || true
-#          echo "Release lock cleared."
-#        shell: bash
+      - name: Force unlock my-app release
+        run: |
+          echo "Deleting Helm secrets for release 'my-app'..."
+          kubectl delete secret -l owner=helm,name=my-app --ignore-not-found
+          echo "Attempting to uninstall any lingering release..."
+          helm uninstall my-app --ignore-not-found 2>/dev/null || true
+          echo "Release lock cleared."
+        shell: bash
 
       # 9. Деплой приложения с переопределением образов
       - name: Deploy application services
