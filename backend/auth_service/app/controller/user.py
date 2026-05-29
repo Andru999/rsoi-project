@@ -1,5 +1,8 @@
 from typing import Annotated
 from uuid import UUID
+import asyncio
+import logging
+from fastapi import HTTPException
 
 from dto.user import (
     JWKSResponse,
@@ -91,6 +94,7 @@ async def refresh_user_token(
         scope=user_refresh.scope,
     )
 
+logger = logging.getLogger(__name__)
 
 @controller.get(
     path="/.well-known/jwks.json",
@@ -100,7 +104,17 @@ async def refresh_user_token(
 async def get_jwks(
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> JWKSResponse:
-    return await user_service.get_jwks()
+    logger.info("JWKS endpoint called")
+    try:
+        result = await asyncio.wait_for(user_service.get_jwks(), timeout=5.0)
+        logger.info("JWKS response generated successfully")
+        return result
+    except asyncio.TimeoutError:
+        logger.error("JWKS request timed out after 5 seconds")
+        raise HTTPException(status_code=504, detail="JWKS request timed out")
+    except Exception as e:
+        logger.exception("Unexpected error in JWKS endpoint")
+        raise
 
 
 @controller.get(
