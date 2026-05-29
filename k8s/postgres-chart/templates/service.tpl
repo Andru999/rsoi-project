@@ -2,16 +2,19 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{.service.name}}
+  name: {{ .service.name }}
 spec:
+  {{- if .service.headless }}
+  clusterIP: None
+  {{- end }}
+  type: {{ .service.type | default "ClusterIP" }}
   selector:
-    app: {{.service.name}}
-    app.kubernetes.io/version: "{{ .ctx.Values.version }}"
-    app.kubernetes.io/component: database
-    app.kubernetes.io/part-of: simple-backend
-    app.kubernetes.io/managed-by: helm
+    app: {{ .ctx.Release.Name }}-{{ .service.name }}
   ports:
-    - protocol: TCP
-      port: 5432
-      targetPort: 5432
+    - port: {{ .service.port }}
+      targetPort: {{ .service.targetPort }}
+      protocol: TCP
+      {{- if and (ne .service.name "kafka-broker") (ne .service.name "zookeeper") }}
+      name: http
+      {{- end }}
 {{- end }}

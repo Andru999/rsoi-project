@@ -35,12 +35,6 @@ spec:
             - name: {{$k | quote}}
               value: {{$v | quote}}
             {{- end }}
-            {{- if eq .service.name "kafka-broker" }}
-            - name: POD_IP
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.podIP
-            {{- end }}
 
       restartPolicy: Always
 {{- end }}

@@ -110,11 +110,12 @@ services:
     name: kafka-broker
     container: confluentinc/cp-kafka:7.3.2
     replicaCount: 1
+    headless: true
     env:
       KAFKA_BROKER_ID: "1"
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
       KAFKA_LISTENERS: "PLAINTEXT://:29092"
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://$(POD_IP):29092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka-broker:29092"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT"
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
