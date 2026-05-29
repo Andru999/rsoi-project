@@ -9,7 +9,7 @@ from utils.database import get_session
 logging.basicConfig(level=logging.DEBUG)
 
 conf = {
-    "bootstrap.servers": "kafka:29092",
+    "bootstrap.servers": "kafka-broker:29092",
     "auto.offset.reset": "earliest",
     "enable.auto.commit": True,
     "group.id": "my-group",

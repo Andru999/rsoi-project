@@ -26,8 +26,10 @@ router = APIRouter(
     },
 )
 
+import os
+
 producer_conf = {
-    "bootstrap.servers": "kafka:29092",
+    "bootstrap.servers": os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka-broker:29092"),
     "client.id": "my-app",
 }
 

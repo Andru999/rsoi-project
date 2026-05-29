@@ -51,7 +51,7 @@ services:
     container: cr.yandex/crpa02k8ar8sdlbp59pl/statistics-service:latest
     replicaCount: 1
     env:
-      KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+      KAFKA_BOOTSTRAP_SERVERS: "kafka-broker:29092"
       DB_DSN: "host=statisticsdb user=postgres password=password dbname=statisticsdb port=5432"
     publishUrl: /statistics
     port: 8090
@@ -62,7 +62,7 @@ services:
     container: cr.yandex/crpa02k8ar8sdlbp59pl/consumer-service:latest
     replicaCount: 1
     env:
-      KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+      KAFKA_BOOTSTRAP_SERVERS: "kafka-broker:29092"
       KAFKA_GROUP_ID: "my-group"
       DB_DSN: "host=statisticsdb user=postgres password=password dbname=statisticsdb port=5432"
     publishUrl: ""
@@ -80,7 +80,7 @@ services:
       TICKET_SERVICE_URL: "http://ticket-service:8070/api/v1/"
       AUTH_SERVICE_URL: "http://auth-service:8888/"
       STATISTICS_SERVICE_URL: "http://statistics-service:8090/"
-      AUTH_JWKS_URL: "http://auth-service:8888/.well-known/jwks.json"
+      AUTH_JWKS_URL: "http://auth-service:8888/api/v1/user/.well-known/jwks.json"
     publishUrl: /api
     port: 8080
     targetPort: 8080

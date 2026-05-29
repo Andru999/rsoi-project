@@ -35,6 +35,7 @@ def get_request(
         response: Response = requests.get(
             url=url,
             params=params,
+            timeout=3,
         )
     except:
         response = Response()

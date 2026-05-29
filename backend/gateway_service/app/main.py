@@ -75,11 +75,17 @@ async def logs_handler(request: Request, call_next) -> Response:  # noqa: ANN001
     try:
         requests.post(
             url=f"http://{settings['services']['gateway']['statistics_host']}:"
-            f"{settings['services']['statistics']['port']}/api/v1/statistics/produce",
-            data=data,
+                f"{settings['services']['statistics']['port']}/api/v1/statistics/produce",
+            json={
+                "method": method,
+                "url": str(url),
+                "status_code": str(status_code),
+                "time": moscow_time.isoformat(),
+            },
+            timeout=0.5,
         )
     except Exception as err:
-        print(err)
+        print(f"[gateway stats error] {err}", flush=True)
 
     return response
 
