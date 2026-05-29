@@ -2,7 +2,7 @@ name: Build & Deploy to Yandex Cloud
 
 on:
   push:
-    branches: [ master, yandex-cloud ]
+    branches: [ master, yandex-cloud2 ]
   pull_request:
     branches: [ master ]
 
