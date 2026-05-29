@@ -19,14 +19,15 @@ jobs:
           fetch-depth: 0
 
       # 1. Аутентификация в Яндекс.Облаке через сервисный аккаунт
-      - name: Set up yc CLI
-        uses: yandex-cloud/yc-setup@v1
-        with:
-          yc-sa-json-credentials: ${{ secrets.YANDEX_CLOUD_SA_KEY }}
-
-      # 2. Настройка Docker для Container Registry
-      - name: Configure Docker for Yandex Container Registry
-        run: yc container registry configure-docker
+      - name: Install and configure yc CLI
+        run: |
+          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -n
+          echo "$HOME/yandex-cloud/bin" >> $GITHUB_PATH
+          echo '${{ secrets.YANDEX_CLOUD_SA_KEY }}' > key.json
+          yc config profile create sa-profile
+          yc config set service-account-key key.json
+          yc container registry configure-docker
+        shell: bash
 
       # 3. Сборка и публикация backend-образов
       - name: Build and push backend images
