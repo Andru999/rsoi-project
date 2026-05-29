@@ -106,14 +106,14 @@ jobs:
             -f ./k8s/postgres-chart/values.yaml \
             --wait --timeout 10m
 
-      - name: Force unlock my-app release
-        run: |
-          echo "Deleting Helm secrets for release 'my-app'..."
-          kubectl delete secret -l owner=helm,name=my-app --ignore-not-found
-          echo "Attempting to uninstall any lingering release..."
-          helm uninstall my-app --ignore-not-found 2>/dev/null || true
-          echo "Release lock cleared."
-        shell: bash
+#      - name: Force unlock my-app release
+#        run: |
+#          echo "Deleting Helm secrets for release 'my-app'..."
+#          kubectl delete secret -l owner=helm,name=my-app --ignore-not-found
+#          echo "Attempting to uninstall any lingering release..."
+#          helm uninstall my-app --ignore-not-found 2>/dev/null || true
+#          echo "Release lock cleared."
+#        shell: bash
 
       # 9. Деплой приложения с переопределением образов
       - name: Deploy application services
