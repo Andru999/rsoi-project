@@ -30,9 +30,9 @@ spec:
           imagePullPolicy: Always
           env:
             - name: POSTGRES_USER
-              value: {{ .ctx.Values.defaultdb.user }}
+              value: {{ .ctx.Values.default_database.user }}
             - name: POSTGRES_PASSWORD
-              value: {{ .ctx.Values.defaultdb.password }}
+              value: {{ .ctx.Values.default_database.password }}
             - name: POSTGRES_DB
               value: {{ .service.name }}
           resources:
