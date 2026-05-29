@@ -124,7 +124,6 @@ jobs:
             -f ./k8s/app-chart/values.yaml \
             --wait --timeout 15m
 
-
       # 10. Применяем Ingress правила
       - name: Apply Ingress rules
         run: kubectl apply -f k8s/Ingress.yaml
