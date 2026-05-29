@@ -1,32 +1,32 @@
 databases:
-  bonus_db:
+  bonusdb:
     user: postgres
     password: password
-    db: bonus_db
+    db: bonusdb
     host: bonusdb
     port: 5432
-  flight_db:
+  flightdb:
     user: postgres
     password: password
-    db: flight_db
+    db: flightdb
     host: flightdb
     port: 5432
-  ticket_db:
+  ticketdb:
     user: postgres
     password: password
-    db: ticket_db
+    db: ticketdb
     host: ticketdb
     port: 5432
-  auth_db:
+  authdb:
     user: postgres
     password: password
-    db: auth_db
+    db: authdb
     host: authdb
     port: 5432
-  statistics_db:
+  statisticsdb:
     user: postgres
     password: password
-    db: statistics_db
+    db: statisticsdb
     host: statisticsdb
     port: 5432
 

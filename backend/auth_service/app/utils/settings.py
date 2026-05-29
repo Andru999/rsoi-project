@@ -63,7 +63,7 @@ class Settings:
                 Settings.options.service.log_level = service["log_level"]
                 Settings.options.service.reload = service["reload"]
 
-                database = data["databases"]["auth_db"]
+                database = data["databases"]["authdb"]
                 Settings.options.database.user = database["user"]
                 Settings.options.database.password = database["password"]
                 Settings.options.database.host = database["host"]

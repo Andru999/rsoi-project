@@ -18,9 +18,9 @@ def get_db_url(config_name: str = CONFIG_PATH) -> str:
     settings = get_settings(config_name)
 
     return (
-        f"postgresql://{settings['databases']['bonus_db']['user']}:"
-        f"{settings['databases']['bonus_db']['password']}@"
-        f"{settings['databases']['bonus_db']['host']}:"
-        f"{settings['databases']['bonus_db']['port']}/"
-        f"{settings['databases']['bonus_db']['db']}"
+        f"postgresql://{settings['databases']['bonusdb']['user']}:"
+        f"{settings['databases']['bonusdb']['password']}@"
+        f"{settings['databases']['bonusdb']['host']}:"
+        f"{settings['databases']['bonusdb']['port']}/"
+        f"{settings['databases']['bonusdb']['db']}"
     )

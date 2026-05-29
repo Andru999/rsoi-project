@@ -18,9 +18,9 @@ def get_db_url(config_name: str = CONFIG_PATH) -> str:
     settings = get_settings(config_name)
 
     return (
-        f"postgresql://{settings['databases']['flight_db']['user']}:"
-        f"{settings['databases']['flight_db']['password']}@"
-        f"{settings['databases']['flight_db']['host']}:"
-        f"{settings['databases']['flight_db']['port']}/"
-        f"{settings['databases']['flight_db']['db']}"
+        f"postgresql://{settings['databases']['flightdb']['user']}:"
+        f"{settings['databases']['flightdb']['password']}@"
+        f"{settings['databases']['flightdb']['host']}:"
+        f"{settings['databases']['flightdb']['port']}/"
+        f"{settings['databases']['flightdb']['db']}"
     )

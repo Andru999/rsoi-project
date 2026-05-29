@@ -17,22 +17,22 @@ replicaCount: 1
 
 services:
   bonusdb:
-    name: bonus_db
+    name: bonusdb
     replicaCount: 1
     hostPort: 5432
   flightdb:
-    name: flight_db
+    name: flightdb
     replicaCount: 1
     hostPort: 5433
   ticketdb:
-    name: ticket_db
+    name: ticketdb
     replicaCount: 1
     hostPort: 5434
   authdb:
-    name: auth_db
+    name: authdb
     replicaCount: 1
     hostPort: 5435
   statisticsdb:
-    name: statistics_db
+    name: statisticsdb
     replicaCount: 1
     hostPort: 5436

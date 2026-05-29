@@ -19,9 +19,9 @@ def get_db_url(config_name: str = CONFIG_PATH) -> str:
     settings = get_settings(config_name)
 
     return (
-        f"postgresql://{settings['databases']['ticket_db']['user']}:"
-        f"{settings['databases']['ticket_db']['password']}@"
-        f"{settings['databases']['ticket_db']['host']}:"
-        f"{settings['databases']['ticket_db']['port']}/"
-        f"{settings['databases']['ticket_db']['db']}"
+        f"postgresql://{settings['databases']['ticketdb']['user']}:"
+        f"{settings['databases']['ticketdb']['password']}@"
+        f"{settings['databases']['ticketdb']['host']}:"
+        f"{settings['databases']['ticketdb']['port']}/"
+        f"{settings['databases']['ticketdb']['db']}"
     )
