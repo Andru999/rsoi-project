@@ -118,8 +118,8 @@ jobs:
       # 9. Деплой приложения с переопределением образов
       - name: Deploy application services
         run: |
-          kubectl delete deployment my-app-bonus-service-dep my-app-flight-service-dep my-app-ticket-service-dep my-app-auth-service-dep my-app-statistics-service-dep my-app-consumer-service-dep my-app-gateway-service-dep my-app-dips-client-dep
-          kubectl delete service my-app-bonus-service my-app-flight-service my-app-ticket-service my-app-auth-service my-app-statistics-service my-app-consumer-service my-app-gateway-service my-app-dips-client
+#          kubectl delete deployment my-app-bonus-service-dep my-app-flight-service-dep my-app-ticket-service-dep my-app-auth-service-dep my-app-statistics-service-dep my-app-consumer-service-dep my-app-gateway-service-dep my-app-dips-client-dep
+#          kubectl delete service my-app-bonus-service my-app-flight-service my-app-ticket-service my-app-auth-service my-app-statistics-service my-app-consumer-service my-app-gateway-service my-app-dips-client
           helm upgrade --install my-app ./k8s/app-chart \
             -f ./k8s/app-chart/values.yaml \
             --wait --timeout 15m
