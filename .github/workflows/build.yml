@@ -73,8 +73,8 @@ jobs:
       # 6. ConfigMap'ы со скриптами инициализации БД
       - name: Create init-sql ConfigMaps
         run: |
-          kubectl delete deployment authdb bonusdb flightdb ticketdb statisticsdb
-          kubectl delete service authdb bonusdb flightdb ticketdb statisticsdb
+#          kubectl delete deployment authdb bonusdb flightdb ticketdb statisticsdb
+#          kubectl delete service authdb bonusdb flightdb ticketdb statisticsdb
 #          kubectl scale deployment authdb bonusdb flightdb statisticsdb ticketdb --replicas=0
 #          kubectl delete configmap db-configmap-bonusdb db-configmap-flightdb db-configmap-ticketdb db-configmap-authdb
 #          kubectl create configmap db-configmap-bonusdb --from-file=backend/bonus_service/sql/init_db.sql --dry-run=client -o yaml | kubectl apply -f -
