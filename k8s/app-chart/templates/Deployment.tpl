@@ -5,20 +5,16 @@ metadata:
   name: {{ .ctx.Release.Name }}-{{.service.name}}-dep
   labels:
     app: {{ .ctx.Release.Name }}-{{.service.name}}
-
 spec:
   replicas: {{.service.replicaCount}}
-
   selector:
     matchLabels:
       app: {{ .ctx.Release.Name }}-{{.service.name}}
-
   template:
     metadata:
       name: {{ .ctx.Release.Name }}-{{.service.name}}
       labels:
         app: {{ .ctx.Release.Name }}-{{.service.name}}
-
     spec:
       containers:
         - name: {{ .ctx.Release.Name }}-{{.service.name}}
@@ -38,6 +34,12 @@ spec:
             {{- range $k, $v := .service.env}}
             - name: {{$k | quote}}
               value: {{$v | quote}}
+            {{- end }}
+            {{- if eq .service.name "kafka-broker" }}
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
             {{- end }}
 
       restartPolicy: Always

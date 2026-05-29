@@ -82,7 +82,7 @@ async def logs_handler(request: Request, call_next) -> Response:  # noqa: ANN001
                 "status_code": str(status_code),
                 "time": moscow_time.isoformat(),
             },
-            timeout=0.5,
+            timeout=10,
         )
     except Exception as err:
         print(f"[gateway stats error] {err}", flush=True)
