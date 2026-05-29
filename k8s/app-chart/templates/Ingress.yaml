@@ -16,6 +16,14 @@ spec:
                 port:
                   number: 8888
 
+          - path: /api/v1/statistics
+            pathType: Prefix
+            backend:
+              service:
+                name: statistics-service
+                port:
+                  number: 8090
+
           - path: /api
             pathType: Prefix
             backend:
