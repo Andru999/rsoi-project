@@ -9,6 +9,7 @@ on:
 env:
   REGISTRY_ID: ${{ vars.REGISTRY_ID }}          # ID Container Registry
   K8S_CLUSTER_ID: ${{ vars.K8S_CLUSTER_ID }}    # ID Managed Kubernetes кластера
+  FOLDER_ID: ${{ vars.FOLDER_ID }}
 
 jobs:
   deploy:
@@ -18,14 +19,20 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 1. Аутентификация в Яндекс.Облаке через сервисный аккаунт
-      - name: Install and configure yc CLI
+      # Шаг 1 – только установка yc и добавление в PATH
+      - name: Install yc CLI
         run: |
           curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -n
           echo "$HOME/yandex-cloud/bin" >> $GITHUB_PATH
+        shell: bash
+
+      # Шаг 2 – настройка профиля и Docker (yc уже доступен)
+      - name: Configure yc and Docker
+        run: |
           echo '${{ secrets.YANDEX_CLOUD_SA_KEY }}' > key.json
           yc config profile create sa-profile
           yc config set service-account-key key.json
+          yc config set folder-id ${{ vars.FOLDER_ID }}
           yc container registry configure-docker
         shell: bash
 
