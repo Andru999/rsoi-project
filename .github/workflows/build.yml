@@ -57,13 +57,13 @@ jobs:
           docker push cr.yandex/${{ env.REGISTRY_ID }}/gateway-service:latest
           docker push cr.yandex/${{ env.REGISTRY_ID }}/statistics-service:latest
           docker push cr.yandex/${{ env.REGISTRY_ID }}/consumer-service:latest
-#
-#      # 4. Сборка и публикация frontend-образа
-#      - name: Build and push frontend image
-#        run: |
-#          cd frontend
-#          docker build -t cr.yandex/${{ env.REGISTRY_ID }}/dips-client:latest .
-#          docker push cr.yandex/${{ env.REGISTRY_ID }}/dips-client:latest
+
+      # 4. Сборка и публикация frontend-образа
+      - name: Build and push frontend image
+        run: |
+          cd frontend
+          docker build --no-cache -t cr.yandex/${{ env.REGISTRY_ID }}/dips-client:latest .
+          docker push cr.yandex/${{ env.REGISTRY_ID }}/dips-client:latest
 
       # 5. Получение kubeconfig для кластера
       - name: Get k8s credentials

@@ -7,10 +7,10 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=bonus_db
+      - POSTGRESdb=bonusdb
     volumes:
       - pg_data_bonus:/var/lib/postgresql/data
-      - ./bonus_service/sql/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+      - ./bonus_service/sql/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
     networks:
       - default
     healthcheck:
@@ -25,10 +25,10 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=flight_db
+      - POSTGRESdb=flightdb
     volumes:
       - pg_data_flight:/var/lib/postgresql/data
-      - ./flight_service/sql/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+      - ./flight_service/sql/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
     networks:
       - default
     healthcheck:
@@ -43,10 +43,10 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=ticket_db
+      - POSTGRESdb=ticketdb
     volumes:
       - pg_data_ticket:/var/lib/postgresql/data
-      - ./ticket_service/sql/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+      - ./ticket_service/sql/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
     networks:
       - default
     healthcheck:
@@ -61,10 +61,10 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=auth_db
+      - POSTGRESdb=authdb
     volumes:
       - pg_data_auth:/var/lib/postgresql/data
-      - ./auth_service/sql/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+      - ./auth_service/sql/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
     networks:
       - default
     healthcheck:
@@ -79,7 +79,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=statistics_db
+      - POSTGRESdb=statisticsdb
     volumes:
       - pg_data_statistics:/var/lib/postgresql/data
     networks:
