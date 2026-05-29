@@ -7,7 +7,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
-      - POSTGRESdb=bonusdb
+      - POSTGRESDB=bonus_db
     volumes:
       - pg_data_bonus:/var/lib/postgresql/data
       - ./bonus_service/sql/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
@@ -25,7 +25,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
-      - POSTGRESdb=flightdb
+      - POSTGRESDB=flight_db
     volumes:
       - pg_data_flight:/var/lib/postgresql/data
       - ./flight_service/sql/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
@@ -43,7 +43,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
-      - POSTGRESdb=ticketdb
+      - POSTGRESDB=ticket_db
     volumes:
       - pg_data_ticket:/var/lib/postgresql/data
       - ./ticket_service/sql/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
@@ -61,7 +61,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
-      - POSTGRESdb=authdb
+      - POSTGRESDB=auth_db
     volumes:
       - pg_data_auth:/var/lib/postgresql/data
       - ./auth_service/sql/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
@@ -75,11 +75,11 @@ services:
 
   statisticsdb:
     image: postgres:16-alpine
-    container_name: statisticsdb
+    container_name: statistics_db
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
-      - POSTGRESdb=statisticsdb
+      - POSTGRESDB=statisticsdb
     volumes:
       - pg_data_statistics:/var/lib/postgresql/data
     networks:
