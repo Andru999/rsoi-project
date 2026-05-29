@@ -197,7 +197,7 @@ services:
       context: "."
       dockerfile: ./docker/statistics.Dockerfile
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - KAFKA_BOOTSTRAP_SERVERS=kafka-broker:29092
     ports:
       - "8090:8090"
     networks:
@@ -215,7 +215,7 @@ services:
       context: "."
       dockerfile: ./docker/consumer.Dockerfile
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - KAFKA_BOOTSTRAP_SERVERS=kafka-broker:29092
       - KAFKA_GROUP_ID=my-group
     networks:
       - default
