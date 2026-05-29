@@ -1,27 +1,27 @@
 export const config = {
   server: {
     auth: {
-      host: "localhost",
+      host: "158.160.211.136",
       port: 8888,
     },
     statistics: {
-      host: "localhost",
+      host: "158.160.208.34",
       port: 8090,
     },
     gateway: {
-      host: "localhost",
+      host: "158.160.211.136",
       port: 8080,
     },
     ticket: {
-      host: "localhost",
+      host: "158.160.208.34",
       port: 8070,
     },
     flight: {
-      host: "localhost",
+      host: "158.160.211.136",
       port: 8060,
     },
     bonus: {
-      host: "localhost",
+      host: "158.160.208.34",
       port: 8050,
     },
   },
