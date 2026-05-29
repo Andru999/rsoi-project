@@ -2,12 +2,12 @@ import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { IAuthResponse } from "../interfaces/Auth/IAuthResponse";
 import { config } from "../config";
 
-// Единый экземпляр axios
-const api = axios.create({
-  baseURL: config.api.baseUrl, // "/api/v1"
+// Единый экземпляр axios – экспортируем как api, так и старые имена
+export const api = axios.create({
+  baseURL: config.api.baseUrl,   // "/api/v1"
 });
 
-// Интерсептор запроса: добавляем токен, если есть
+// Интерсептор запроса – добавляем токен
 api.interceptors.request.use((cfg: InternalAxiosRequestConfig) => {
   const token = localStorage.getItem("accessToken");
   if (token) {
@@ -16,7 +16,7 @@ api.interceptors.request.use((cfg: InternalAxiosRequestConfig) => {
   return cfg;
 });
 
-// Интерсептор ответа: обработка 401 и попытка обновить токен
+// Интерсептор ответа – обработка 401
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error) => {
@@ -41,15 +41,13 @@ api.interceptors.response.use(
         }
       } catch (e) {
         localStorage.clear();
-        // опционально можно редиректить на логин
       }
     }
     return Promise.reject(error);
   }
 );
 
-// Для обратной совместимости с существующим кодом,
-// который импортирует $apiAuth, $apiUser, $apiGateway и $apiStatistics
+// Экспортируем старые имена для совместимости с существующим кодом
 export const $apiAuth = api;
 export const $apiUser = api;
 export const $apiGateway = api;
