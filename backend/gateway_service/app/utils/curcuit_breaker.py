@@ -1,130 +1,100 @@
-import requests
 import time
-from threading import Thread, Lock
-from fastapi import status
-from collections import deque
+from threading import Thread
 
+import requests
+from fastapi import status
 from utils.settings import get_settings
 
 
 class CircuitBreaker:
-    settings = get_settings()["services"]["gateway"]
+    gateway_settings = get_settings()["services"]["gateway"]
 
-    WINDOW_SIZE = settings.get("sliding_window_size", 4)
-    FAIL_THRESHOLD = settings.get("fail_threshold_percent", 50) / 100
-
-    _services = {}
-    _waiter: Thread = None
-    _lock = Lock()
+    _fail_statistic = {}
+    _service_state = {}
+    _waiter: Thread | None = None
 
     @staticmethod
     def send_request(
-            url: str,
-            http_method,
-            headers={},
-            data={},
-            params=None,
-            timeout=5
-        ):
+        url: str,
+        http_method,  # noqa: ANN001
+        headers: dict = {},
+        data: dict = {},
+        params=None,  # noqa: ANN001
+        timeout: int = 5,
+    ) -> requests.Response:
         resp = requests.Response()
         resp.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         if http_method is None:
             return resp
 
-        host_url = url[url.find('://') + 3:]
-        host_url = host_url[:host_url.find('/')]
+        host_url = url[url.find("://") + 3 :]
+        host_url = host_url[: host_url.find("/")]
 
-        service = CircuitBreaker._services.get(host_url)
-        if service is None:
-            service = {
-                "window": deque(maxlen=CircuitBreaker.WINDOW_SIZE),
-                "state": "available",
-            }
-            CircuitBreaker._services[host_url] = service
-
-        # если сервис в состоянии open (unavailable)
-        if service["state"] == "unavailable":
-            print(f"[CB] Service {host_url} is unavailable")
+        state = CircuitBreaker._service_state.get(host_url)
+        if state == "unavailable":
+            print(f"Service {host_url} is unavailable")
             return resp
 
-        try:
-            response = http_method(
-                url=url,
-                headers=headers,
-                json=data,
-                params=params,
-                timeout=timeout
-            )
-        except Exception:
-            CircuitBreaker._register_result(host_url, False)
-            return resp
+        for _ in range(
+            CircuitBreaker.gateway_settings["max_num_of_fails"] + 1,
+        ):
+            try:
+                resp = http_method(
+                    url=url,
+                    headers=headers,
+                    json=data,
+                    params=params,
+                    timeout=timeout,
+                )
+                if resp.status_code < 500:  # noqa: PLR2004
+                    CircuitBreaker._fail_statistic[host_url] = 0
+                    return resp
+            except Exception:
+                fail_num = CircuitBreaker._fail_statistic.get(host_url)
+                if fail_num is None:
+                    CircuitBreaker._fail_statistic[host_url] = 1
+                else:
+                    CircuitBreaker._fail_statistic[host_url] += 1
 
-        # успешный (статус < 500)
-        if response.status_code < 500:
-            CircuitBreaker._register_result(host_url, True)
-            return response
+        fail_num = CircuitBreaker._fail_statistic.get(host_url)
+        if (
+            fail_num is not None
+            and fail_num > CircuitBreaker.gateway_settings["max_num_of_fails"]
+        ):
+            print(f"The number fails for {host_url} is overflow")
 
-        # ошибка >= 500
-        CircuitBreaker._register_result(host_url, False)
-        return response
+            CircuitBreaker._fail_statistic[host_url] = 0
+            CircuitBreaker._service_state[host_url] = "unavailable"
+            if CircuitBreaker._waiter is None:
+                CircuitBreaker._waiter = Thread(
+                    target=CircuitBreaker._wait_for_available,
+                )
+                CircuitBreaker._waiter.start()
 
-    @staticmethod
-    def _register_result(host_url: str, is_success: bool):
-        with CircuitBreaker._lock:
-            service = CircuitBreaker._services[host_url]
-            service["window"].append(is_success)
-
-            # если окно ещё не набралось — не переключаемся
-            if len(service["window"]) < CircuitBreaker.WINDOW_SIZE:
-                return
-
-            # вычисляем долю ошибок
-            errors = service["window"].count(False)
-            total = len(service["window"])
-            err_rate = errors / total
-
-            # если слишком много ошибок — открываем CB
-            if err_rate > CircuitBreaker.FAIL_THRESHOLD:
-                print(f"[CB] {host_url} FAIL RATE {err_rate*100:.1f}% → OPEN")
-                service["state"] = "unavailable"
-
-                if CircuitBreaker._waiter is None:
-                    CircuitBreaker._waiter = Thread(
-                        target=CircuitBreaker._wait_for_available
-                    )
-                    CircuitBreaker._waiter.start()
+        return resp
 
     @staticmethod
-    def _wait_for_available():
-        timeout = CircuitBreaker.settings["timeout"]
-        while True:
-            time.sleep(timeout)
-            all_ok = True
-
-            with CircuitBreaker._lock:
-                for host_url, service in CircuitBreaker._services.items():
-                    if service["state"] == "unavailable":
-                        Thread(
-                            target=CircuitBreaker._check_health,
-                            args=(host_url,)
-                        ).start()
-                        all_ok = False
-
-            if all_ok:
-                break
+    def _wait_for_available() -> None:
+        is_end = False
+        while not is_end:
+            time.sleep(CircuitBreaker.gateway_settings["timeout"])
+            is_end = True
+            for host_url in CircuitBreaker._service_state:
+                if CircuitBreaker._service_state[host_url] == "unavailable":
+                    Thread(
+                        target=CircuitBreaker._check_service_health,
+                        args=(host_url,),
+                    ).start()
+                    is_end = False
 
         CircuitBreaker._waiter = None
 
     @staticmethod
-    def _check_health(host_url: str):
+    def _check_service_health(host_url: str) -> None:
         url = f"http://{host_url}/api/v1/manage/health"
         try:
             resp = requests.get(url, timeout=5)
             if resp.status_code == status.HTTP_200_OK:
-                with CircuitBreaker._lock:
-                    print(f"[CB] {host_url} → CLOSED")
-                    CircuitBreaker._services[host_url]["state"] = "available"
-                    CircuitBreaker._services[host_url]["window"].clear()
+                CircuitBreaker._service_state[host_url] = "available"
         except Exception:
-            print("[CB] Error health:", url)
-
+            print("Error health:", url)
