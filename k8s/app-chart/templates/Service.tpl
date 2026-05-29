@@ -10,5 +10,5 @@ spec:
     - protocol: TCP
       port: {{.service.port}}
       targetPort: {{.service.targetPort}}
-  type: {{ .service.type | default "ClusterIP" }}
+  type: {{ .service.type | default "NodePort }}
 {{- end }}
