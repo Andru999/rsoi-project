@@ -111,7 +111,6 @@ jobs:
         run: |
           helm upgrade --install my-app ./k8s/app-chart \
             -f ./k8s/app-chart/values.yaml \
-            -f ./k8s/app-chart/values-yc.yaml \
             --wait --timeout 15m
 
       # 10. Применяем Ingress правила

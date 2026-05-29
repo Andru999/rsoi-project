@@ -36,6 +36,9 @@ spec:
             - name: POSTGRES_DB
               value: {{ .service.name }}
           resources:
+            requests:
+              memory: "{{ .ctx.Values.resources.requests.memory }}"
+              cpu: "{{ .ctx.Values.resources.requests.cpu }}"
             limits:
               memory: "{{ .ctx.Values.resources.limits.memory }}"
               cpu: "{{ .ctx.Values.resources.limits.cpu }}"
