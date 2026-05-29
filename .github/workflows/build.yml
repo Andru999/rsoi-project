@@ -79,16 +79,13 @@ jobs:
 #          kubectl create configmap db-configmap-ticketdb --from-file=backend/ticket_service/sql/init_db.sql --dry-run=client -o yaml | kubectl apply -f -
 #          kubectl create configmap db-configmap-authdb --from-file=backend/auth_service/sql/init_db.sql --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: Unlock stuck db release
+      - name: Force unlock db release
         run: |
-          if helm list -q | grep -q '^db$'; then
-            STATUS=$(helm status db -o json | jq -r '.info.status')
-            if [ "$STATUS" = "pending-install" ] || [ "$STATUS" = "pending-upgrade" ] || [ "$STATUS" = "pending-rollback" ]; then
-              echo "Release db stuck in $STATUS, uninstalling..."
-              helm uninstall db
-              kubectl delete secret -l owner=helm,name=db --ignore-not-found
-            fi
-          fi
+          echo "Deleting Helm secrets for release 'db'..."
+          kubectl delete secret -l owner=helm,name=db --ignore-not-found
+          echo "Attempting to uninstall any lingering release..."
+          helm uninstall db --ignore-not-found 2>/dev/null || true
+          echo "Release lock cleared."
         shell: bash
 
       # 7. Удаление старого релиза Kafka (если есть)
