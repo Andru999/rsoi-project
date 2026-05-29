@@ -3,18 +3,17 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .service.name }}
+  labels:
+    app.kubernetes.io/name: {{ .service.name }}
+    app.kubernetes.io/version: "{{ .ctx.Values.version }}"
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: simple-backend
+    app.kubernetes.io/managed-by: helm
 spec:
-  {{- if .service.headless }}
-  clusterIP: None
-  {{- end }}
-  type: {{ .service.type | default "ClusterIP" }}
   selector:
-    app: {{ .ctx.Release.Name }}-{{ .service.name }}
+    app: {{ .service.name }}
   ports:
-    - port: {{ .service.port }}
-      targetPort: {{ .service.targetPort }}
-      protocol: TCP
-      {{- if and (ne .service.name "kafka-broker") (ne .service.name "zookeeper") }}
-      name: http
-      {{- end }}
+    - name: postgresql
+      port: {{ .ctx.Values.port }}
+      targetPort: {{ .ctx.Values.port }}
 {{- end }}

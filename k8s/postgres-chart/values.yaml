@@ -1,7 +1,7 @@
 version: 16
 port: 5432
 
-defaultdb:
+default_database:
   user: postgres
   password: password
 

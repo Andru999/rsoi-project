@@ -73,8 +73,9 @@ jobs:
       # 6. ConfigMap'ы со скриптами инициализации БД
       - name: Create init-sql ConfigMaps
         run: |
-          kubectl delete deployment my-app-bonus-service-dep my-app-flight-service-dep my-app-ticket-service-dep my-app-auth-service-dep my-app-statistics-service-dep my-app-consumer-service-dep my-app-gateway-service-dep my-app-dips-client-dep my-app-kafka-broker-dep my-app-zookeeper-dep
           kubectl delete deployment authdb bonusdb flightdb ticketdb statisticsdb
+#          kubectl delete deployment my-app-bonus-service-dep my-app-flight-service-dep my-app-ticket-service-dep my-app-auth-service-dep my-app-statistics-service-dep my-app-consumer-service-dep my-app-gateway-service-dep my-app-dips-client-dep my-app-kafka-broker-dep my-app-zookeeper-dep
+
 #          kubectl delete service my-app-bonus-service my-app-flight-service my-app-ticket-service my-app-auth-service my-app-statistics-service my-app-consumer-service my-app-gateway-service my-app-dips-client
 #          kubectl delete service authdb bonusdb flightdb ticketdb statisticsdb
 #          kubectl scale deployment authdb bonusdb flightdb statisticsdb ticketdb --replicas=0
