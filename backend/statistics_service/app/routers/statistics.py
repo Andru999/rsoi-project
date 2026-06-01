@@ -1,5 +1,6 @@
 from typing import Annotated
 import os
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from confluent_kafka import Producer
 from cruds.interfaces.statistics import IStatisticsCRUD
