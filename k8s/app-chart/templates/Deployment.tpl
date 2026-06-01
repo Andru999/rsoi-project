@@ -35,6 +35,12 @@ spec:
           {{- end }}
 
           env:
+            {{- if eq .service.name "kafka-broker" }}
+            - name: "POD_IP"
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            {{- end }}
             {{- range $k, $v := .service.env}}
             - name: {{$k | quote}}
               value: {{$v | quote}}

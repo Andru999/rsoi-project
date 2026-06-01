@@ -1,4 +1,5 @@
 from typing import Annotated
+import os
 
 from confluent_kafka import Producer
 from cruds.interfaces.statistics import IStatisticsCRUD
@@ -26,7 +27,6 @@ router = APIRouter(
     },
 )
 
-import os
 
 producer_conf = {
     "bootstrap.servers": os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka-broker:29092"),
@@ -34,7 +34,7 @@ producer_conf = {
 }
 
 producer = Producer(producer_conf)
-
+KAFKA_TOPIC = os.getenv("KAFKA_TOPIC", "my-topic")
 
 @router.get(
     path="/",
@@ -71,10 +71,15 @@ async def produce(
     statistics_produce: StatisticsCreate,
 ) -> Response:
     producer.produce(
-        "my-topic",
+        KAFKA_TOPIC,
         value=statistics_produce.model_dump_json().encode("utf-8"),
     )
-    producer.flush()
+    not_delivered = producer.flush(10)
+    if not_delivered:
+        raise HTTPException(
+            status_code=503,
+            detail = "Kafka is unavailable or message delivery timed out",
+        )
 
     return Response(
         status_code=status.HTTP_204_NO_CONTENT,

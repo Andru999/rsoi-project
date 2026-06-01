@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import time
 
 from confluent_kafka import Consumer, KafkaError
@@ -8,19 +9,19 @@ from utils.database import get_session
 
 logging.basicConfig(level=logging.DEBUG)
 
+KAFKA_TOPIC = os.getenv("KAFKA_TOPIC", "my-topic")
+
 conf = {
-    "bootstrap.servers": "kafka-broker:29092",
+    "bootstrap.servers": os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka-broker:29092"),
     "auto.offset.reset": "earliest",
     "enable.auto.commit": True,
-    "group.id": "my-group",
-    "api.version.request": True,
-    "api.version.fallback.ms": 0,
+    "group.id": os.getenv("KAFKA_GROUP_ID", "my-group"),
 }
 
 
 def consume_messages() -> None:
     consumer = Consumer(conf)
-    consumer.subscribe(["my-topic"])
+    consumer.subscribe([KAFKA_TOPIC])
 
     try:
         while True:
