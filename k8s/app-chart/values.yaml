@@ -52,7 +52,6 @@ services:
     replicaCount: 1
     env:
       KAFKA_BOOTSTRAP_SERVERS: "kafka-broker:29092"
-      KAFKA_TOPIC: "my-topic"
       DB_DSN: "host=statisticsdb user=postgres password=password dbname=statisticsdb port=5432"
     publishUrl: /statistics
     port: 8090
@@ -64,8 +63,8 @@ services:
     replicaCount: 1
     env:
       KAFKA_BOOTSTRAP_SERVERS: "kafka-broker:29092"
-      KAFKA_TOPIC: "my-topic"
       KAFKA_GROUP_ID: "my-group"
+      KAFKA_TOPIC: "my-topic"
       DB_DSN: "host=statisticsdb user=postgres password=password dbname=statisticsdb port=5432"
     publishUrl: ""
     port: 0
@@ -83,6 +82,8 @@ services:
       AUTH_SERVICE_URL: "http://auth-service:8888/"
       STATISTICS_SERVICE_URL: "http://statistics-service:8090/"
       AUTH_JWKS_URL: "http://auth-service:8888/api/v1/user/.well-known/jwks.json"
+      KAFKA_BOOTSTRAP_SERVERS: "kafka-broker:29092"
+      KAFKA_TOPIC: "my-topic"
     publishUrl: /api
     port: 8080
     targetPort: 8080
@@ -115,13 +116,11 @@ services:
     env:
       KAFKA_BROKER_ID: "1"
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-      KAFKA_LISTENERS: "INTERNAL://:29092"
-      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://$(POD_IP):29092"
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT"
-      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_LISTENERS: "PLAINTEXT://:29092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka-broker:29092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
       KAFKA_LOG_DIRS: "/tmp/kafka-logs"
     publishUrl: ""
     port: 29092

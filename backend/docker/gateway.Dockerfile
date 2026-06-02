@@ -1,12 +1,12 @@
-FROM python:3.10-alpine
+FROM python:3.10-slim-buster
 
 WORKDIR /gateway
 
 COPY ./gateway_service /gateway
 COPY ../config.yaml /gateway
-COPY ../requirements.txt /gateway
+COPY ../requirements_kafka.txt /gateway
 
-RUN pip3.10 install -r requirements.txt
+RUN pip3.10 install -r requirements_kafka.txt
 
 EXPOSE 8080
 

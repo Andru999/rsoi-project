@@ -1,7 +1,9 @@
 import datetime
+import json
+import os
 
+from confluent_kafka import KafkaException, Producer
 import pytz
-import requests
 import uvicorn
 from exceptions.handlers import (
     http_exception_handler,
@@ -17,6 +19,17 @@ from routers.api import router as api_router
 from utils.settings import get_settings
 
 settings = get_settings()
+
+KAFKA_TOPIC = os.getenv("KAFKA_TOPIC", "my-topic")
+producer = Producer(
+    {
+        "bootstrap.servers": os.getenv(
+            "KAFKA_BOOTSTRAP_SERVERS",
+            "kafka-broker:29092",
+        ),
+        "client.id": "gateway-service",
+    },
+)
 
 
 def custom_openapi() -> dict:
@@ -71,21 +84,28 @@ async def logs_handler(request: Request, call_next) -> Response:  # noqa: ANN001
     moscow_timezone = pytz.timezone("Europe/Moscow")
     moscow_time = current_time.astimezone(moscow_timezone)
 
-    data = f'{{"method": "{method}", "url": "{url}", "status_code": "{status_code}", "time": "{moscow_time}"}}'  # noqa: E501
+    event = {
+        "method": method,
+        "url": str(url),
+        "status_code": str(status_code),
+        "time": moscow_time.isoformat(),
+    }
+
     try:
-        requests.post(
-            url=f"http://{settings['services']['gateway']['statistics_host']}:"
-                f"{settings['services']['statistics']['port']}/api/v1/statistics/produce",
-            json={
-                "method": method,
-                "url": str(url),
-                "status_code": str(status_code),
-                "time": moscow_time.isoformat(),
-            },
-            timeout=0.5,
+        producer.produce(
+            KAFKA_TOPIC,
+            value=json.dumps(event, ensure_ascii=False).encode("utf-8"),
         )
-    except Exception as err:
-        print(f"[gateway stats error] {err}", flush=True)
+        not_delivered = producer.flush(1)
+        if not_delivered:
+            print(
+                f"[gateway kafka stats warning] "
+                f"{not_delivered} event(s) were not delivered",
+                flush=True,
+            )
+    except KafkaException as err:
+        # Важно: не ломаем основной API, если статистика временно недоступна.
+        print(f"[gateway kafka stats error] {err}", flush=True)
 
     return response
 
