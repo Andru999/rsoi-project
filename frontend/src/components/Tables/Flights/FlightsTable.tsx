@@ -60,6 +60,7 @@ export function FlightsTable({ openMiniDrawer, user }: FlightsTableProps) {
 												privilege={ privilege }
 												handleOpenPurchaseInfoWindow={ purchaseInfoWindow.handleOpenWindow }
 												handleUpdatePrivilege={ handleUpdatePrivilege }
+												handleUpdateTable={ handleUpdateTable }
 												addClassName={index % 2 ? "bg-gray-200": "bg-white"}
 											/>
 										)

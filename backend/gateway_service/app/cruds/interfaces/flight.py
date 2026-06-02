@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from enums.sort import SortFlights
-from schemas.flight import FlightFilter
+from schemas.flight import FlightDatetimeUpdate, FlightFilter
 
 
 class IFlightCRUD(ABC):
@@ -19,5 +19,13 @@ class IFlightCRUD(ABC):
     async def get_airport_by_id(
         self,
         airport_id: int,
+    ) -> dict:
+        pass
+
+    @abstractmethod
+    async def update_flight_datetime_by_id(
+        self,
+        flight_id: int,
+        flight_datetime_update: FlightDatetimeUpdate,
     ) -> dict:
         pass

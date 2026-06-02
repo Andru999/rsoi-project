@@ -1,7 +1,7 @@
 from cruds.interfaces.flight import IFlightCRUD
 from enums.sort import SortFlights
 from models.flight import FlightModel
-from schemas.flight import FlightFilter
+from schemas.flight import FlightFilter, FlightUpdate
 from sqlalchemy.orm import Query
 
 
@@ -39,6 +39,24 @@ class FlightCRUD(IFlightCRUD):
     async def delete(self, flight: FlightModel) -> FlightModel:
         self._db.delete(flight)
         self._db.commit()
+
+        return flight
+
+    async def patch(
+        self,
+        flight: FlightModel,
+        flight_update: FlightUpdate,
+    ) -> FlightModel | None:
+        update_fields = flight_update.model_dump(exclude_unset=True)
+        for key, value in update_fields.items():
+            setattr(flight, key, value)
+
+        try:
+            self._db.add(flight)
+            self._db.commit()
+            self._db.refresh(flight)
+        except:
+            return None
 
         return flight
 

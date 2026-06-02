@@ -11,11 +11,16 @@ from cruds.ticket import TicketCRUD
 from enums.auth import RoleEnum
 from enums.responses import RespEnum
 from enums.sort import SortFlights
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Path, Query, status
 from fastapi.responses import Response
 from fastapi.security import HTTPAuthorizationCredentials
 from schemas.bonus import PrivilegeInfoResponse
-from schemas.flight import FlightFilterGateway, PaginationResponse
+from schemas.flight import (
+    FlightDatetimeUpdate,
+    FlightFilterGateway,
+    FlightResponse,
+    PaginationResponse,
+)
 from schemas.ticket import (
     TicketPurchaseRequest,
     TicketPurchaseResponse,
@@ -86,6 +91,40 @@ async def get_list_of_flights(
         sort=sort,
         page=page,
         size=size,
+    )
+
+
+@router.patch(
+    "/flights/{flightNumber}/datetime",
+    status_code=status.HTTP_200_OK,
+    response_model=FlightResponse,
+    responses={
+        status.HTTP_200_OK: RespEnum.UpdateFlightDatetime.value,
+        status.HTTP_400_BAD_REQUEST: RespEnum.InvalidData.value,
+        status.HTTP_401_UNAUTHORIZED: RespEnum.NotAuthorized.value,
+        status.HTTP_403_FORBIDDEN: RespEnum.Forbidden.value,
+        status.HTTP_404_NOT_FOUND: RespEnum.FlightNumberNotFound.value,
+    },
+)
+async def update_flight_datetime(
+    flightCRUD: Annotated[IFlightCRUD, Depends(get_flight_crud)],
+    ticketCRUD: Annotated[ITicketCRUD, Depends(get_ticket_crud)],
+    bonusCRUD: Annotated[IBonusCRUD, Depends(get_bonus_crud)],
+    flightNumber: Annotated[str, Path(max_length=20)],
+    flight_datetime_update: FlightDatetimeUpdate,
+    token: HTTPAuthorizationCredentials | None = Depends(http_bearer),
+    _: bool = Depends(
+        RoleChecker(allowed_roles=[RoleEnum.ADMIN]),
+    ),
+) -> FlightResponse:
+    return await GatewayService(
+        flightCRUD=flightCRUD,
+        ticketCRUD=ticketCRUD,
+        bonusCRUD=bonusCRUD,
+        token=token,
+    ).update_flight_datetime(
+        flight_number=flightNumber,
+        flight_datetime_update=flight_datetime_update,
     )
 
 

@@ -12,6 +12,9 @@ class RespEnum(Enum):
     GetAllFlights = {
         "description": "Список рейсов",
     }
+    UpdateFlightDatetime = {
+        "description": "Время вылета рейса изменено",
+    }
     GetAllTickets = {
         "description": "Информация по всем билетам пользователя",
     }

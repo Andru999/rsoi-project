@@ -9,7 +9,7 @@ from enums.sort import SortFlights
 from fastapi import APIRouter, Depends, Query, status
 from fastapi.responses import Response
 from models.flight import FlightModel
-from schemas.flight import Flight, FlightCreate, FlightFilter
+from schemas.flight import Flight, FlightCreate, FlightFilter, FlightUpdate
 from services.flight import FlightService
 from sqlalchemy.orm import Session
 from utils.auth_user import RoleChecker
@@ -84,6 +84,33 @@ async def get_flight_by_id(
         flightCRUD=flightCRUD,
         db=db,
     ).get_by_id(flight_id)
+
+
+@router.patch(
+    "/{flight_id}/",
+    status_code=status.HTTP_200_OK,
+    response_model=Flight,
+    responses={
+        status.HTTP_200_OK: RespFlightEnum.Patch.value,
+        status.HTTP_400_BAD_REQUEST: RespFlightEnum.InvalidData.value,
+        status.HTTP_401_UNAUTHORIZED: RespFlightEnum.NotAuthorized.value,
+        status.HTTP_403_FORBIDDEN: RespFlightEnum.Forbidden.value,
+        status.HTTP_404_NOT_FOUND: RespFlightEnum.NotFound.value,
+    },
+)
+async def update_flight_datetime_by_id(
+    db: Annotated[Session, Depends(get_db)],
+    flightCRUD: Annotated[IFlightCRUD, Depends(get_flight_crud)],
+    flight_id: int,
+    flight_update: FlightUpdate,
+    _: bool = Depends(
+        RoleChecker(allowed_roles=[RoleEnum.ADMIN]),
+    ),
+) -> FlightModel:
+    return await FlightService(
+        flightCRUD=flightCRUD,
+        db=db,
+    ).patch(flight_id, flight_update)
 
 
 @router.post(

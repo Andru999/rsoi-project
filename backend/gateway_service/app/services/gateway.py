@@ -21,6 +21,7 @@ from schemas.bonus import (
     PrivilegeUpdate,
 )
 from schemas.flight import (
+    FlightDatetimeUpdate,
     FlightFilter,
     FlightFilterGateway,
     FlightResponse,
@@ -46,7 +47,7 @@ class GatewayService:
         bonusCRUD: type[IBonusCRUD],
         token: HTTPAuthorizationCredentials | None = None,
     ) -> None:
-        self._flightCRUD = flightCRUD()
+        self._flightCRUD = flightCRUD(token)
         self._ticketCRUD = ticketCRUD(token)
         self._bonusCRUD = bonusCRUD(token)
 
@@ -144,6 +145,51 @@ class GatewayService:
             pageSize=size,
             totalElements=total_elements,
             items=flights[offset:limit],
+        )
+
+    async def update_flight_datetime(
+        self,
+        flight_number: str,
+        flight_datetime_update: FlightDatetimeUpdate,
+    ) -> FlightResponse:
+        flight_list = await self._flightCRUD.get_all_flights(
+            flight_filter=FlightFilter(flightNumber=flight_number),
+            page=1,
+            size=100000,
+        )
+
+        flight_dict = next(
+            (
+                flight
+                for flight in flight_list
+                if flight.get("flight_number") == flight_number
+            ),
+            None,
+        )
+        if flight_dict is None:
+            raise NotFoundException(
+                prefix="Update Flight",
+                message="рейс с таким номером не найден",
+            )
+
+        updated_flight_dict = await self._flightCRUD.update_flight_datetime_by_id(
+            flight_id=flight_dict["id"],
+            flight_datetime_update=flight_datetime_update,
+        )
+
+        from_airport = await self.__get_airport_by_id(
+            updated_flight_dict.get("from_airport_id"),
+        )
+        to_airport = await self.__get_airport_by_id(
+            updated_flight_dict.get("to_airport_id"),
+        )
+
+        return FlightResponse(
+            flightNumber=updated_flight_dict["flight_number"],
+            fromAirport=from_airport,
+            toAirport=to_airport,
+            date=updated_flight_dict["datetime"],
+            price=updated_flight_dict["price"],
         )
 
     async def get_info_on_all_user_tickets(

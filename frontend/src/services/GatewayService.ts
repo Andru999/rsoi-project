@@ -4,6 +4,7 @@ import { IBuyTicket } from "../interfaces/Ticket/IBuyTicket";
 import { IUserInfo } from "../interfaces/User/IUserInfo";
 import { IPrivilegeResponse } from "../interfaces/Bonus/IPrivilegeResponse";
 import { ITicket } from "../interfaces/Ticket/ITicket";
+import { IFlight } from "../interfaces/Flight/IFlight";
 
 
 export default class GatewayService {
@@ -42,6 +43,14 @@ export default class GatewayService {
   static async getInfoAboutBonusAccount() {
     try {
       return await $apiGateway.get<IPrivilegeResponse>('/privilege');
+    } catch {
+      return null;
+    }
+  };
+
+  static async updateFlightDatetime(flightNumber: string, datetime: string) {
+    try {
+      return await $apiGateway.patch<IFlight>(`/flights/${flightNumber}/datetime`, { datetime });
     } catch {
       return null;
     }

@@ -1,8 +1,15 @@
+from datetime import datetime as dt
+
 from cruds.interfaces.flight import IFlightCRUD
+from enums.auth import BadRequestErrorTextEnum
 from enums.sort import SortFlights
-from exceptions.http_exceptions import ConflictException, NotFoundException
+from exceptions.http_exceptions import (
+    BadRequestException,
+    ConflictException,
+    NotFoundException,
+)
 from models.flight import FlightModel
-from schemas.flight import FlightCreate, FlightFilter
+from schemas.flight import FlightCreate, FlightFilter, FlightUpdate
 from sqlalchemy.orm import Session
 
 
@@ -49,3 +56,32 @@ class FlightService:
             raise NotFoundException(prefix="Delete flight")
 
         return await self._flightCRUD.delete(flight)
+
+    async def patch(
+        self,
+        flight_id: int,
+        flight_update: FlightUpdate,
+    ) -> FlightModel:
+        flight = await self._flightCRUD.get_by_id(flight_id)
+        if flight is None:
+            raise NotFoundException(prefix="Update flight")
+
+        self.__validate_future_datetime(flight_update.datetime)
+
+        flight = await self._flightCRUD.patch(flight, flight_update)
+        if flight is None:
+            raise ConflictException(prefix="Update flight")
+
+        return flight
+
+    def __validate_future_datetime(self, new_datetime: dt) -> None:
+        if new_datetime.tzinfo is not None and new_datetime.utcoffset() is not None:
+            now = dt.now(tz=new_datetime.tzinfo)
+        else:
+            now = dt.now()
+
+        if new_datetime <= now:
+            raise BadRequestException(
+                error_in=BadRequestErrorTextEnum.INVALID_PAYLOAD_FIELD,
+                detail="время вылета должно быть в будущем",
+            )

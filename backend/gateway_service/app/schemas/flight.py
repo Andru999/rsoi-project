@@ -21,6 +21,10 @@ class FlightFilterGateway(FlightFilter):
     toAirport: Annotated[str, constr(max_length=80)] | None = None
 
 
+class FlightDatetimeUpdate(BaseModel):
+    datetime: dt
+
+
 class FlightResponse(BaseModel):
     flightNumber: Annotated[str, constr(max_length=20)]
     fromAirport: str | None

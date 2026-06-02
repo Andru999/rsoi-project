@@ -29,6 +29,10 @@ class FlightCreate(FlightBase):
     to_airport_id: Annotated[int, conint(ge=1)] | None = None
 
 
+class FlightUpdate(BaseModel):
+    datetime: dt
+
+
 class Flight(FlightBase):
     id: int
 

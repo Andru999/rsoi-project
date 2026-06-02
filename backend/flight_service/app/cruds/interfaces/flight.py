@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from enums.sort import SortFlights
 from models.flight import FlightModel
-from schemas.flight import FlightFilter
+from schemas.flight import FlightFilter, FlightUpdate
 from sqlalchemy.orm import Session
 
 
@@ -30,4 +30,12 @@ class IFlightCRUD(ABC):
 
     @abstractmethod
     async def delete(self, flight: FlightModel) -> FlightModel:
+        pass
+
+    @abstractmethod
+    async def patch(
+        self,
+        flight: FlightModel,
+        flight_update: FlightUpdate,
+    ) -> FlightModel | None:
         pass

@@ -5,7 +5,9 @@ import { PayIcon } from "../../Icons/PayIcon";
 import { IUser } from '../../../interfaces/User/IUser';
 import { IPrivilege } from "../../../interfaces/Bonus/IPrivilege";
 import { BuyTicketWindow } from "../../ModalWindows/BuyTicketWindow";
+import { ChangeFlightDatetimeWindow } from "../../ModalWindows/ChangeFlightDatetimeWindow";
 import { useWindow } from "../../../hooks/useWindows/useWindow";
+import { ChangeIcon } from "../../Icons/ChangeIcon";
 
 
 interface FlightsRowProps {
@@ -14,11 +16,13 @@ interface FlightsRowProps {
 	privilege: IPrivilege | null
 	handleOpenPurchaseInfoWindow: (ticket: ITicketResponse) => void
 	handleUpdatePrivilege: () => Promise<void>
+	handleUpdateTable: () => Promise<void>
 	addClassName?: string
 }
 
 export function FlightsRow(props: FlightsRowProps) {
 	const buyTicketWindow = useWindow();
+	const changeDatetimeWindow = useWindow();
 
 	return (
 		<>
@@ -31,13 +35,20 @@ export function FlightsRow(props: FlightsRowProps) {
 				<div className="row-item basis-1/4">{ props.flight.toAirport }</div>
 				<div className="row-item basis-1/5">{ props.flight.date }</div>
 				<div className="row-item basis-1/6">{ props.flight.price }</div>
-				
+
 				<div className="actions">
-					{ props.user && 
-						<PayIcon 
+					{ props.user &&
+						<PayIcon
 							color="gray"
 							addClassName="px-2 py-2"
 							onClick={ buyTicketWindow.handleOpenWindow }
+						/>
+					}
+					{ props.user?.role === "ADMIN" &&
+						<ChangeIcon
+							color="gray"
+							addClassName="px-2 py-2"
+							onClick={ changeDatetimeWindow.handleOpenWindow }
 						/>
 					}
 				</div>
@@ -50,6 +61,14 @@ export function FlightsRow(props: FlightsRowProps) {
 					onClose={ buyTicketWindow.handleCloseWindow }
 					handleOpenPurchaseInfoWindow={ props.handleOpenPurchaseInfoWindow }
 					handleUpdatePrivilege={ props.handleUpdatePrivilege }
+				/>
+			}
+
+			{ changeDatetimeWindow.visibility &&
+				<ChangeFlightDatetimeWindow
+					flight={ props.flight }
+					onClose={ changeDatetimeWindow.handleCloseWindow }
+					onUpdated={ props.handleUpdateTable }
 				/>
 			}
 		</>
