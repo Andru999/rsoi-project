@@ -14,7 +14,7 @@ KAFKA_TOPIC = os.getenv("KAFKA_TOPIC", "my-topic")
 conf = {
     "bootstrap.servers": os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka-broker:29092"),
     "auto.offset.reset": "earliest",
-    "enable.auto.commit": True,
+    "enable.auto.commit": False,
     "group.id": os.getenv("KAFKA_GROUP_ID", "my-group"),
 }
 
@@ -49,9 +49,13 @@ def consume_messages() -> None:
                 statistics = StatisticsModel(**data_dict)
 
                 db = get_session()
-                db.add(statistics)
-                db.commit()
-                db.refresh(statistics)
+                try:
+                    db.add(statistics)
+                    db.commit()
+                    db.refresh(statistics)
+                    consumer.commit(message=msg, asynchronous=False)
+                finally:
+                    db.close()
 
                 print(f"Received message: {msg.value().decode('utf-8')}")
                 logging.info(msg.value().decode("utf-8"))

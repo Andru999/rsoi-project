@@ -1,7 +1,6 @@
 import datetime
 
 import pytz
-import requests
 import uvicorn
 from exceptions.handlers import (
     http_exception_handler,
@@ -14,6 +13,7 @@ from fastapi.openapi.utils import get_openapi
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse, Response
 from routers.api import router as api_router
+from utils.kafka_producer import produce_statistics_event
 from utils.settings import get_settings
 
 settings = get_settings()
@@ -73,16 +73,13 @@ async def logs_handler(request: Request, call_next) -> Response:  # noqa: ANN001
 
     data = f'{{"method": "{method}", "url": "{url}", "status_code": "{status_code}", "time": "{moscow_time}"}}'  # noqa: E501
     try:
-        requests.post(
-            url=f"http://{settings['services']['gateway']['statistics_host']}:"
-                f"{settings['services']['statistics']['port']}/api/v1/statistics/produce",
-            json={
+        produce_statistics_event(
+            {
                 "method": method,
                 "url": str(url),
                 "status_code": str(status_code),
                 "time": moscow_time.isoformat(),
             },
-            timeout=0.5,
         )
     except Exception as err:
         print(f"[gateway stats error] {err}", flush=True)

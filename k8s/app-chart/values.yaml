@@ -77,6 +77,8 @@ services:
     container: cr.yandex/crpa02k8ar8sdlbp59pl/gateway-service:latest
     replicaCount: 1
     env:
+      KAFKA_BOOTSTRAP_SERVERS: "kafka-broker:29092"
+      KAFKA_TOPIC: "my-topic"
       BONUS_SERVICE_URL: "http://bonus-service:8050/api/v1/"
       FLIGHT_SERVICE_URL: "http://flight-service:8060/api/v1/"
       TICKET_SERVICE_URL: "http://ticket-service:8070/api/v1/"
