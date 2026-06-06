@@ -88,12 +88,13 @@ export function useFlightsTable() {
 
 	async function fetchPrivilege() {
 		if (AuthService.isAuth()) {
-			const response = await GatewayService.getUserInformation();
+			const response = await GatewayService.getInfoAboutBonusAccount();
 			if (response) {
-				setError(false);
-				setPrivilege(response.data.privilege);
+				setPrivilege({
+					balance: response.data.balance,
+					status: response.data.status,
+				});
 			} else {
-				setError(true);
 				setPrivilege(null);
 			}
 		};

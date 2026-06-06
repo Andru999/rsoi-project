@@ -43,13 +43,13 @@ class GatewayService:
     def __init__(
         self,
         flightCRUD: type[IFlightCRUD],
-        ticketCRUD: type[ITicketCRUD],
-        bonusCRUD: type[IBonusCRUD],
+        ticketCRUD: type[ITicketCRUD] | None = None,
+        bonusCRUD: type[IBonusCRUD] | None = None,
         token: HTTPAuthorizationCredentials | None = None,
     ) -> None:
         self._flightCRUD = flightCRUD(token)
-        self._ticketCRUD = ticketCRUD(token)
-        self._bonusCRUD = bonusCRUD(token)
+        self._ticketCRUD = ticketCRUD(token) if ticketCRUD is not None else None
+        self._bonusCRUD = bonusCRUD(token) if bonusCRUD is not None else None
 
         settings = get_settings()
         gateway_host = settings["services"]["gateway"]["host"]
@@ -396,7 +396,10 @@ class GatewayService:
         return updated_ticket_dict
 
     async def get_user_information(self, user_name: str) -> UserInfoResponse:
-        tickets = await self.get_info_on_all_user_tickets(user_name)
+        try:
+            tickets = await self.get_info_on_all_user_tickets(user_name)
+        except ServiceUnavailableException:
+            tickets = []
 
         try:
             privilege_dict = await self.__get_privilege_by_username(user_name)

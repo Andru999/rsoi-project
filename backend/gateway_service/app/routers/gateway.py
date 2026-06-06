@@ -61,8 +61,6 @@ router = APIRouter(
 )
 async def get_list_of_flights(
     flightCRUD: Annotated[IFlightCRUD, Depends(get_flight_crud)],
-    ticketCRUD: Annotated[ITicketCRUD, Depends(get_ticket_crud)],
-    bonusCRUD: Annotated[IBonusCRUD, Depends(get_bonus_crud)],
     flightNumber: Annotated[str | None, Query(max_length=20)] = None,
     minPrice: Annotated[int | None, Query(ge=1)] = None,
     maxPrice: Annotated[int | None, Query(ge=1)] = None,
@@ -76,8 +74,6 @@ async def get_list_of_flights(
 ) -> PaginationResponse:
     return await GatewayService(
         flightCRUD=flightCRUD,
-        ticketCRUD=ticketCRUD,
-        bonusCRUD=bonusCRUD,
     ).get_list_of_flights(
         flight_filter=FlightFilterGateway(
             flightNumber=flightNumber,
@@ -108,8 +104,6 @@ async def get_list_of_flights(
 )
 async def update_flight_datetime(
     flightCRUD: Annotated[IFlightCRUD, Depends(get_flight_crud)],
-    ticketCRUD: Annotated[ITicketCRUD, Depends(get_ticket_crud)],
-    bonusCRUD: Annotated[IBonusCRUD, Depends(get_bonus_crud)],
     flightNumber: Annotated[str, Path(max_length=20)],
     flight_datetime_update: FlightDatetimeUpdate,
     token: HTTPAuthorizationCredentials | None = Depends(http_bearer),
@@ -119,8 +113,6 @@ async def update_flight_datetime(
 ) -> FlightResponse:
     return await GatewayService(
         flightCRUD=flightCRUD,
-        ticketCRUD=ticketCRUD,
-        bonusCRUD=bonusCRUD,
         token=token,
     ).update_flight_datetime(
         flight_number=flightNumber,
